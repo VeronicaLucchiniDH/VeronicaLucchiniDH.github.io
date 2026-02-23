@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Titolo e link istruzioni  -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Stage - UN General Debate 2003–2023</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+
+  <style>
+     /* Grafica mappa */
+    .map-preview-section {
+      padding: 4rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    #map-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      margin: 2rem 0;
+    }
+    #map-svg { width: 100%; height: auto; display: block; cursor: grab; }
+    #map-svg:active { cursor: grabbing; }
+    .country-path { stroke: var(--border); stroke-width: 0.4; transition: opacity 0.2s; }
+    .country-path:hover { stroke: var(--ink); stroke-width: 1.2; cursor: pointer; }
+
+    .map-legend {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.2rem;
+      background: rgba(255,255,255,0.3);
+    }
+    .legend-item {
+      display: flex; align-items: center;
+      gap: 0.4rem; font-size: 0.72rem; color: var(--muted);
+      cursor: pointer; font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .legend-item:hover { color: var(--ink); }
+    .legend-item.active { color: var(--ink); font-weight: 500; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink:0; }
+    
+    /* è unico non è una classe */
+    #map-tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--ink); color: #fff;
+      padding: 0.55rem 0.85rem; border-radius: 4px;
+      font-size: 0.78rem; opacity: 0; z-index: 1000;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.5;
+      transition: opacity 0.1s;
+    }
+    #map-tooltip strong { display:block; margin-bottom: 0.15rem; }
+    #map-tooltip .tip-topic { color: var(--gold); font-size: 0.72rem; }
+
+    .map-controls {
+      position: absolute; top: 10px; right: 10px;
+      display: flex; flex-direction: column; gap: 5px; z-index: 5;
+    }
+    .map-btn {
+      width: 28px; height: 28px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 3px; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink); transition: background 0.2s;
+    }
+    .map-btn:hover { background: var(--border); }
+
+    .map-note {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-align: right;
+      margin-top: 0.5rem;
+      opacity: 0.7;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-top: 2rem;
+    }
+    .stat-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1.2rem 1.5rem;
+    }
+    .stat-card .sc-label {
+      font-family: 'DM Mono', monospace; font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 0.5rem; display: block;
+    }
+    .stat-card .sc-value {
+      font-family: 'Playfair Display', serif; font-size: 2rem;
+      font-weight: 700; color: var(--ink); display: block;
+    }
+    .stat-card .sc-desc {
+      font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Word<span>Stage</span></a>
+  <ul>
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="observations.html">Observations</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="hero-deco">UN</div>
+    <span class="hero-label">Digital Humanities · Text Analysis · Political Science</span>
+    <h1>Word<br><em>Stage</em></h1>
+    <p class="hero-sub">
+      Twenty-one years of United Nations General Debate speeches, analyzed to show how global discourse has changed from 2003 to 2023, if it has.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-n">4,046</span>
+        <span class="stat-label">Speeches</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">21</span>
+        <span class="stat-label">Years (2003–2023)</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">~193</span>
+        <span class="stat-label">Countries</span>
+      </div>
+    </div>
+    <a href="observations.html" class="hero-cta">Explore the Observations →</a>
+  </div>
+
+  <hr class="divider">
+
+  <!-- cappello iniziale -->
+  <section>
+    <span class="section-label">The Project</span>
+    <h2>What is the project about</h2>
+    <p style="max-width:680px; line-height:1.8; color:var(--muted); font-size:1rem;">
+      Every year, representatives of UN countries gather at the United Nations General Assembly to address the world. These speeches are records of political discourse and diplomatic language, but also of what states choose to say, and what they do not. Read together, they can show what persists through crises and what is contingent on them. This project uses computational text analysis to explore what that language looks like, how it changes, and what it reveals about who speaks and what they say.
+    </p>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Mappa -->
+  <section class="map-preview-section">
+    <span class="section-label">Geographic Analysis · LDA Topic Modeling</span>
+    <h2>The World in <em style="color:var(--accent)">Topics</em></h2>
+    <p style="color:var(--muted); max-width:620px; margin-bottom: 1.5rem;">
+      Each country is coloured by its dominant topic — the LDA theme with the highest average probability across all its speeches (2003–2023). Click a legend item to highlight a single topic.
+    </p>
+
+    <div id="map-container">
+      <div class="map-controls">
+        <button class="map-btn" id="zoomIn" title="Zoom in">+</button>
+        <button class="map-btn" id="zoomOut" title="Zoom out">−</button>
+        <button class="map-btn" id="zoomReset" title="Reset" style="font-size:0.75rem;">↺</button>
+      </div>
+      <svg id="map-svg" viewBox="0 0 960 500"></svg>
+      <div id="map-legend" class="map-legend"></div>
+    </div>
+    <p class="map-note">Dominant topic of a country is the theme most frequently assigned to its speeches by the topic model across the full 2003–2023 period</p>
+    <div class="stats-grid" id="stats-grid"></div>
+  
+    <!-- riquadrri/collegamenti  -->
+
+    <span class="section-label" style="margin-top:2.5rem; display:block;">Explore the project</span>
+    <div class="cards">
+      <div class="card">
+        <h3>Stable Core</h3>
+        <p>Some words persist in UN discourse across all twenty-one years: <em>develop</em>, <em>peace</em>, <em>security</em>. These are the constants of global diplomacy, persistent through crises, critical events, and changings.</p>
+        <a href="observations.html#stable-core" class="card-link">Read more →</a>
+      </div>
+      <div class="card">
+        <h3>Changing Over Time</h3>
+        <p>Other terms rise and fall with history: <em>terrorism</em> after 9/11, <em>sustainable</em> after 2015, <em>covid</em> after 2020. Tracking these shifts can show how global events shape the language of diplomacy in real time and if it happens so.</p>
+        <a href="observations.html#changing-over-time" class="card-link">Read more →</a>
+      </div>
+      <div class="card">
+        <h3>Topics and Geography</h3>
+        <p>LDA identified 15 latent topics across the corpus. The map above shows how they distribute geographically showing regional blocs, thematic alliances, and the different approach of different Nations.</p>
+        <a href="observations.html#topics-geography" class="card-link">Read more →</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="map-tooltip"></div>
+
+<footer>
+  <p>Word Stage · UN General Debate Text Analysis 2003–2023 · <a href="about.html">Home</a></p>
+  <p class="footer-author">Veronica Lucchini · Digital Humanities 2025/2026</p>
+</footer>
+
+<script>
+const rawData = [
+  {iso:"ARE",topic:11,n:21,gamma:0.369},{iso:"BHR",topic:11,n:21,gamma:0.356},{iso:"KWT",topic:11,n:21,gamma:0.355},
+  {iso:"MHL",topic:3,n:21,gamma:0.35},{iso:"PRK",topic:1,n:21,gamma:0.374},{iso:"SLB",topic:3,n:21,gamma:0.311},
+  {iso:"TCD",topic:2,n:21,gamma:0.302},{iso:"EGY",topic:11,n:20,gamma:0.273},{iso:"OMN",topic:11,n:20,gamma:0.318},
+  {iso:"PSE",topic:11,n:20,gamma:0.4},{iso:"QAT",topic:11,n:20,gamma:0.296},{iso:"BDI",topic:2,n:19,gamma:0.256},
+  {iso:"COD",topic:2,n:19,gamma:0.262},{iso:"COG",topic:2,n:19,gamma:0.265},{iso:"KIR",topic:3,n:19,gamma:0.291},
+  {iso:"NIC",topic:7,n:19,gamma:0.278},{iso:"PLW",topic:3,n:19,gamma:0.323},{iso:"TUV",topic:3,n:19,gamma:0.367},
+  {iso:"USA",topic:9,n:19,gamma:0.302},{iso:"BFA",topic:2,n:18,gamma:0.286},{iso:"CAF",topic:2,n:18,gamma:0.327},
+  {iso:"FSM",topic:3,n:18,gamma:0.356},{iso:"PNG",topic:3,n:18,gamma:0.263},{iso:"TKM",topic:13,n:18,gamma:0.477},
+  {iso:"UZB",topic:13,n:18,gamma:0.348},{iso:"COM",topic:2,n:17,gamma:0.23},{iso:"KAZ",topic:13,n:17,gamma:0.275},
+  {iso:"KGZ",topic:13,n:17,gamma:0.305},{iso:"MAR",topic:11,n:17,gamma:0.272},{iso:"MLI",topic:2,n:17,gamma:0.286},
+  {iso:"TJK",topic:13,n:17,gamma:0.302},{iso:"YEM",topic:11,n:17,gamma:0.281},{iso:"BOL",topic:7,n:16,gamma:0.257},
+  {iso:"DMA",topic:3,n:16,gamma:0.283},{iso:"GAB",topic:2,n:16,gamma:0.241},{iso:"GIN",topic:2,n:16,gamma:0.299},
+  {iso:"GNB",topic:2,n:16,gamma:0.267},{iso:"GRD",topic:3,n:16,gamma:0.254},{iso:"KOR",topic:1,n:16,gamma:0.299},
+  {iso:"LBN",topic:11,n:16,gamma:0.274},{iso:"LCA",topic:3,n:16,gamma:0.224},{iso:"TGO",topic:2,n:16,gamma:0.259},
+  {iso:"TON",topic:3,n:16,gamma:0.34},{iso:"WSM",topic:3,n:16,gamma:0.292},{iso:"CIV",topic:2,n:15,gamma:0.303},
+  {iso:"IRQ",topic:11,n:15,gamma:0.25},{iso:"NRU",topic:3,n:15,gamma:0.307},{iso:"SMR",topic:6,n:15,gamma:0.226},
+  {iso:"TUN",topic:11,n:15,gamma:0.275},{iso:"VAT",topic:7,n:15,gamma:0.215},{iso:"ATG",topic:3,n:14,gamma:0.226},
+  {iso:"AZE",topic:8,n:14,gamma:0.263},{iso:"BHS",topic:3,n:14,gamma:0.235},{iso:"CUB",topic:7,n:14,gamma:0.274},
+  {iso:"CYP",topic:11,n:14,gamma:0.197},{iso:"FRA",topic:4,n:14,gamma:0.28},{iso:"ISR",topic:4,n:14,gamma:0.326},
+  {iso:"LAO",topic:14,n:14,gamma:0.246},{iso:"VCT",topic:3,n:14,gamma:0.191},{iso:"GBR",topic:9,n:13,gamma:0.254},
+  {iso:"LIE",topic:6,n:13,gamma:0.28},{iso:"MDA",topic:13,n:13,gamma:0.195},{iso:"PRY",topic:7,n:13,gamma:0.236},
+  {iso:"RUS",topic:13,n:13,gamma:0.275},{iso:"STP",topic:2,n:13,gamma:0.219},{iso:"SWE",topic:6,n:13,gamma:0.215},
+  {iso:"VEN",topic:7,n:13,gamma:0.253},{iso:"VUT",topic:3,n:13,gamma:0.246},{iso:"AFG",topic:9,n:12,gamma:0.218},
+  {iso:"AGO",topic:2,n:12,gamma:0.223},{iso:"CHE",topic:6,n:12,gamma:0.206},{iso:"IRN",topic:8,n:12,gamma:0.245},
+  {iso:"JPN",topic:1,n:12,gamma:0.246},{iso:"SAU",topic:11,n:12,gamma:0.372},{iso:"SYC",topic:3,n:12,gamma:0.26},
+  {iso:"SYR",topic:8,n:12,gamma:0.357},{iso:"BGD",topic:12,n:11,gamma:0.229},{iso:"BIH",topic:13,n:11,gamma:0.229},
+  {iso:"BLR",topic:13,n:11,gamma:0.253},{iso:"CMR",topic:2,n:11,gamma:0.216},{iso:"DEU",topic:4,n:11,gamma:0.23},
+  {iso:"DNK",topic:6,n:11,gamma:0.218},{iso:"ECU",topic:7,n:11,gamma:0.251},{iso:"GTM",topic:12,n:11,gamma:0.205},
+  {iso:"HTI",topic:2,n:11,gamma:0.239},{iso:"LVA",topic:6,n:11,gamma:0.196},{iso:"MRT",topic:11,n:11,gamma:0.234},
+  {iso:"NER",topic:2,n:11,gamma:0.255},{iso:"NGA",topic:10,n:11,gamma:0.204},{iso:"ALB",topic:13,n:10,gamma:0.253},
+  {iso:"AUT",topic:6,n:10,gamma:0.219},{iso:"BEN",topic:2,n:10,gamma:0.217},{iso:"CHL",topic:7,n:10,gamma:0.21},
+  {iso:"CHN",topic:1,n:10,gamma:0.228},{iso:"DZA",topic:11,n:10,gamma:0.232},{iso:"ERI",topic:8,n:10,gamma:0.269},
+  {iso:"FJI",topic:3,n:10,gamma:0.214},{iso:"GUY",topic:15,n:10,gamma:0.226},{iso:"HND",topic:12,n:10,gamma:0.248},
+  {iso:"HUN",topic:4,n:10,gamma:0.258},{iso:"IRL",topic:6,n:10,gamma:0.225},{iso:"JOR",topic:11,n:10,gamma:0.31},
+  {iso:"MUS",topic:3,n:10,gamma:0.18},{iso:"NLD",topic:4,n:10,gamma:0.242},{iso:"SDN",topic:11,n:10,gamma:0.233},
+  {iso:"TTO",topic:3,n:10,gamma:0.199},{iso:"TUR",topic:11,n:10,gamma:0.177},{iso:"URY",topic:7,n:10,gamma:0.226},
+  {iso:"BRB",topic:3,n:9,gamma:0.256},{iso:"DOM",topic:15,n:9,gamma:0.272},{iso:"FIN",topic:6,n:9,gamma:0.21},
+  {iso:"GEO",topic:9,n:9,gamma:0.258},{iso:"GNQ",topic:7,n:9,gamma:0.227},{iso:"GRC",topic:13,n:9,gamma:0.181},
+  {iso:"ISL",topic:6,n:9,gamma:0.189},{iso:"JAM",topic:15,n:9,gamma:0.216},{iso:"KNA",topic:3,n:9,gamma:0.242},
+  {iso:"LUX",topic:6,n:9,gamma:0.191},{iso:"MCO",topic:6,n:9,gamma:0.16},{iso:"MKD",topic:13,n:9,gamma:0.204},
+  {iso:"MNE",topic:6,n:9,gamma:0.238},{iso:"ARM",topic:8,n:8,gamma:0.223},{iso:"BRA",topic:7,n:8,gamma:0.213},
+  {iso:"BWA",topic:10,n:8,gamma:0.2},{iso:"EU",topic:4,n:8,gamma:0.23},{iso:"LBR",topic:2,n:8,gamma:0.192},
+  {iso:"PAK",topic:8,n:8,gamma:0.235},{iso:"PER",topic:7,n:8,gamma:0.215},{iso:"PRT",topic:2,n:8,gamma:0.164},
+  {iso:"ROU",topic:13,n:8,gamma:0.196},{iso:"SOM",topic:9,n:8,gamma:0.229},{iso:"SSD",topic:2,n:8,gamma:0.244},
+  {iso:"SVN",topic:6,n:8,gamma:0.256},{iso:"SWZ",topic:10,n:8,gamma:0.2},{iso:"UKR",topic:13,n:8,gamma:0.25},
+  {iso:"ZMB",topic:10,n:8,gamma:0.243},{iso:"ARG",topic:4,n:7,gamma:0.3},{iso:"AUS",topic:9,n:7,gamma:0.213},
+  {iso:"BGR",topic:6,n:7,gamma:0.215},{iso:"BRN",topic:4,n:7,gamma:0.312},{iso:"BTN",topic:10,n:7,gamma:0.288},
+  {iso:"COL",topic:12,n:7,gamma:0.248},{iso:"EST",topic:6,n:7,gamma:0.255},{iso:"ETH",topic:2,n:7,gamma:0.199},
+  {iso:"IND",topic:10,n:7,gamma:0.236},{iso:"LBY",topic:11,n:7,gamma:0.206},{iso:"LSO",topic:10,n:7,gamma:0.197},
+  {iso:"LTU",topic:8,n:7,gamma:0.248},{iso:"MDV",topic:3,n:7,gamma:0.188},{iso:"MEX",topic:7,n:7,gamma:0.203},
+  {iso:"NOR",topic:6,n:7,gamma:0.196},{iso:"NZL",topic:3,n:7,gamma:0.228},{iso:"SRB",topic:4,n:7,gamma:0.28},
+  {iso:"SVK",topic:4,n:7,gamma:0.247},{iso:"THA",topic:9,n:7,gamma:0.213},{iso:"VNM",topic:1,n:7,gamma:0.212},
+  {iso:"AND",topic:4,n:6,gamma:0.243},{iso:"BEL",topic:6,n:6,gamma:0.202},{iso:"BLZ",topic:3,n:6,gamma:0.184},
+  {iso:"CAN",topic:4,n:6,gamma:0.243},{iso:"CRI",topic:6,n:6,gamma:0.201},{iso:"CZE",topic:4,n:6,gamma:0.213},
+  {iso:"DJI",topic:2,n:6,gamma:0.206},{iso:"GHA",topic:4,n:6,gamma:0.216},{iso:"HRV",topic:6,n:6,gamma:0.199},
+  {iso:"ITA",topic:4,n:6,gamma:0.251},{iso:"MOZ",topic:14,n:6,gamma:0.272},{iso:"MWI",topic:12,n:6,gamma:0.24},
+  {iso:"NPL",topic:14,n:6,gamma:0.165},{iso:"RWA",topic:9,n:6,gamma:0.183},{iso:"SLE",topic:10,n:6,gamma:0.228},
+  {iso:"SLV",topic:12,n:6,gamma:0.205},{iso:"ESP",topic:2,n:5,gamma:0.16},{iso:"IDN",topic:14,n:5,gamma:0.213},
+  {iso:"KEN",topic:5,n:5,gamma:0.225},{iso:"KHM",topic:14,n:5,gamma:0.2},{iso:"MDG",topic:12,n:5,gamma:0.219},
+  {iso:"MLT",topic:4,n:5,gamma:0.247},{iso:"MNG",topic:10,n:5,gamma:0.201},{iso:"MYS",topic:8,n:5,gamma:0.281},
+  {iso:"NAM",topic:10,n:5,gamma:0.227},{iso:"PAN",topic:12,n:5,gamma:0.238},{iso:"POL",topic:6,n:5,gamma:0.161},
+  {iso:"SEN",topic:2,n:5,gamma:0.186},{iso:"SUR",topic:14,n:5,gamma:0.199},{iso:"TZA",topic:2,n:5,gamma:0.222},
+  {iso:"UGA",topic:5,n:5,gamma:0.24},{iso:"ZAF",topic:10,n:5,gamma:0.186},{iso:"CPV",topic:5,n:4,gamma:0.192},
+  {iso:"GMB",topic:2,n:4,gamma:0.169},{iso:"LKA",topic:10,n:4,gamma:0.175},{iso:"MMR",topic:9,n:4,gamma:0.154},
+  {iso:"PHL",topic:4,n:4,gamma:0.289},{iso:"SGP",topic:5,n:4,gamma:0.381},{iso:"TLS",topic:2,n:4,gamma:0.19},
+  {iso:"ZWE",topic:10,n:4,gamma:0.202},{iso:"YUG",topic:8,n:2,gamma:0.309}
+];
+const dataByISO = {};
+rawData.forEach(d => { dataByISO[d.iso] = d; });
+
+const topicMeta = {
+   1: { label:"Nuclear Disarmament",        color:"#7b241c" },
+   2: { label:"Peace & Community",          color:"#b7770d" },
+   3: { label:"Small Islands & Climate",    color:"#0097a7" },
+   4: { label:"Generic Rhetoric A",         color:"#8e6bbf" },
+   5: { label:"COVID & Climate Action",     color:"#76b041" },
+   6: { label:"Human Rights & Law",         color:"#117a65" },
+   7: { label:"Human Rights & Democracy",   color:"#2471a3" },
+   8: { label:"Terrorism & War",            color:"#c0392b" },
+   9: { label:"Generic Rhetoric B",         color:"#1a6b8a" },
+  10: { label:"Development & Reform",       color:"#d4a843" },
+  11: { label:"Palestine & Arab Region",    color:"#d35400" },
+  12: { label:"Social Development",         color:"#7d3c98" },
+  13: { label:"Regional Cooperation",       color:"#1f618d" },
+  14: { label:"SDGs & Agenda 2030",         color:"#1e8449" },
+  15: { label:"Economic Crisis",            color:"#cb4335" }
+};
+
+// card con le statistiche aggiornate
+const statsGrid = document.getElementById('stats-grid');
+const topicCounts = {};
+rawData.forEach(d => { topicCounts[d.topic] = (topicCounts[d.topic]||0)+1; });
+const topTopics = Object.entries(topicCounts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+topTopics.forEach(([t, cnt]) => {
+  const card = document.createElement('div');
+  card.className = 'stat-card';
+  card.innerHTML = `
+    <span class="sc-label" style="color:${topicMeta[t]?.color}">${topicMeta[t]?.label || 'Topic '+t}</span>
+    <span class="sc-value">${cnt}</span>
+    <div class="sc-desc">countries · Topic ${t}</div>
+  `;
+  statsGrid.appendChild(card);
+});
+
+// per collegare gli isocode ai paesi sulla mappa
+const numericToAlpha3 = {
+  "004":"AFG","008":"ALB","012":"DZA","024":"AGO","032":"ARG","036":"AUS","040":"AUT",
+  "050":"BGD","056":"BEL","064":"BTN","068":"BOL","070":"BIH","072":"BWA","076":"BRA",
+  "096":"BRN","100":"BGR","104":"MMR","108":"BDI","116":"KHM","120":"CMR","124":"CAN",
+  "132":"CPV","140":"CAF","144":"LKA","152":"CHL","156":"CHN","170":"COL","174":"COM",
+  "178":"COG","180":"COD","188":"CRI","191":"HRV","192":"CUB","196":"CYP","203":"CZE",
+  "204":"BEN","208":"DNK","214":"DOM","218":"ECU","818":"EGY","222":"SLV","232":"ERI",
+  "233":"EST","231":"ETH","242":"FJI","246":"FIN","250":"FRA","266":"GAB","276":"DEU",
+  "288":"GHA","300":"GRC","320":"GTM","324":"GIN","624":"GNB","328":"GUY","332":"HTI",
+  "340":"HND","348":"HUN","356":"IND","360":"IDN","364":"IRN","368":"IRQ","372":"IRL",
+  "376":"ISR","380":"ITA","388":"JAM","400":"JOR","398":"KAZ","404":"KEN","410":"KOR",
+  "408":"PRK","414":"KWT","417":"KGZ","418":"LAO","422":"LBN","426":"LSO","430":"LBR",
+  "434":"LBY","440":"LTU","442":"LUX","450":"MDG","454":"MWI","458":"MYS","462":"MDV",
+  "466":"MLI","470":"MLT","478":"MRT","484":"MEX","498":"MDA","496":"MNG","504":"MAR",
+  "508":"MOZ","516":"NAM","524":"NPL","528":"NLD","540":"NCL","554":"NZL","558":"NIC",
+  "562":"NER","566":"NGA","578":"NOR","586":"PAK","591":"PAN","598":"PNG","600":"PRY",
+  "604":"PER","608":"PHL","616":"POL","620":"PRT","630":"PRI","634":"QAT","642":"ROU",
+  "643":"RUS","646":"RWA","682":"SAU","686":"SEN","694":"SLE","706":"SOM","710":"ZAF",
+  "728":"SSD","724":"ESP","144":"LKA","729":"SDN","752":"SWE","756":"CHE","760":"SYR",
+  "762":"TJK","764":"THA","768":"TGO","780":"TTO","788":"TUN","792":"TUR","800":"UGA",
+  "804":"UKR","784":"ARE","826":"GBR","840":"USA","858":"URY","860":"UZB","862":"VEN",
+  "704":"VNM","887":"YEM","894":"ZMB","716":"ZWE","275":"PSE","191":"HRV","499":"MNE",
+  "807":"MKD","688":"SRB","051":"ARM","031":"AZE","268":"GEO","112":"BLR","214":"DOM",
+  "214":"DOM","706":"SOM","706":"SOM","626":"TLS","090":"SLB","882":"WSM","776":"TON",
+  "798":"TUV","548":"VUT","583":"FSM","296":"KIR","520":"NRU","585":"PLW","584":"MHL",
+  "076":"BRA","388":"JAM","084":"BLZ","659":"KNA","662":"LCA","670":"VCT","308":"GRD",
+  "212":"DMA","028":"ATG","052":"BRB","044":"BHS","178":"COG","706":"SOM","624":"GNB",
+  "270":"GMB","480":"MUS","690":"SYC","706":"SOM","706":"SOM","706":"SOM",
+  "020":"AND","674":"SMR","492":"MCO","438":"LIE",
+  "048":"BHR","148":"TCD","226":"GNQ","262":"DJI",
+  "336":"VAT","352":"ISL","384":"CIV","392":"JPN",
+  "428":"LVA","512":"OMN","678":"STP","702":"SGP",
+  "703":"SVK","705":"SVN","740":"SUR","748":"SWZ",
+  "795":"TKM","834":"TZA","854":"BFA"
+};
+
+//  legend
+const legendEl = document.getElementById('map-legend');
+let activeFilter = null;
+Object.entries(topicMeta).forEach(([t, meta]) => {
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.dataset.topic = t;
+  item.innerHTML = `<span class="legend-dot" style="background:${meta.color}"></span>T${t} · ${meta.label}`;
+  item.addEventListener('click', () => {
+    if (activeFilter === t) {
+      activeFilter = null;
+      document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+      d3.selectAll('.country-path').attr('opacity', 1);
+    } else {
+      activeFilter = t;
+      document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      d3.selectAll('.country-path').attr('opacity', d => {
+        const iso = numericToAlpha3[String(d.id).padStart(3,'0')];
+        return (iso && dataByISO[iso] && String(dataByISO[iso].topic) === t) ? 1 : 0.08;
+      });
+    }
+  });
+  legendEl.appendChild(item);
+});
+
+//  Map
+const svgEl = document.getElementById('map-svg');
+const svg = d3.select('#map-svg');
+const g = svg.append('g');
+const projection = d3.geoNaturalEarth1().scale(153).translate([480, 250]);
+const path = d3.geoPath().projection(projection);
+const tooltip = d3.select('#map-tooltip');
+
+// Zoom
+const zoom = d3.zoom().scaleExtent([1, 8]).on('zoom', e => g.attr('transform', e.transform));
+svg.call(zoom);
+document.getElementById('zoomIn').onclick = () => svg.transition().call(zoom.scaleBy, 1.5);
+document.getElementById('zoomOut').onclick = () => svg.transition().call(zoom.scaleBy, 0.67);
+document.getElementById('zoomReset').onclick = () => svg.transition().call(zoom.transform, d3.zoomIdentity);
+
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+  const countries = topojson.feature(world, world.objects.countries);
+
+  g.selectAll('.country-path')
+    .data(countries.features)
+    .join('path')
+    .attr('class', 'country-path')
+    .attr('d', path)
+    .attr('fill', d => {
+      const iso = numericToAlpha3[String(d.id).padStart(3,'0')];
+      return (iso && dataByISO[iso]) ? topicMeta[dataByISO[iso].topic]?.color || '#ddd8cc' : '#ddd8cc';
+    })
+    .on('mousemove', (event, d) => {
+      const iso = numericToAlpha3[String(d.id).padStart(3,'0')];
+      if (iso && dataByISO[iso]) {
+        const t = dataByISO[iso].topic;
+        tooltip
+          .style('opacity', 1)
+          .style('left', (event.clientX + 16) + 'px')
+          .style('top', (event.clientY - 12) + 'px')
+          .html(`<strong>${iso}</strong><span class="tip-topic">Topic ${t} · ${topicMeta[t].label}</span>`);
+      } else {
+        tooltip.style('opacity', 0);
+      }
+    })
+    .on('mouseleave', () => tooltip.style('opacity', 0));
+}).catch(() => {
+  document.getElementById('map-container').innerHTML +=
+    '<p style="padding:2rem;color:var(--muted);text-align:center;">⚠️ Map could not load — network connection required.</p>';
+});
+</script>
+
+</body>
+</html>

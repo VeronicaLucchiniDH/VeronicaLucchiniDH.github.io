@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - Word Stage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* About layout */
+    .about-header {
+      padding: 8rem 2rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+    .about-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      margin-bottom: 1rem;
+    }
+    .about-header p {
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.75;
+      font-size: 1rem;
+    }
+
+    .about-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+
+    .about-section {
+      padding-top: 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 4rem;
+    }
+    .about-section:first-child {
+      border-top: none;
+      margin-top: 3rem;
+    }
+
+    .about-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-section p {
+      line-height: 1.9;
+      color: var(--muted);
+      font-size: 0.97rem;
+      margin-bottom: 1.1rem;
+    }
+    .about-section p:last-child { margin-bottom: 0; }
+    .about-section em  { color: var(--ink); font-style: italic; }
+    .about-section strong { color: var(--ink); font-weight: 500; }
+
+    /* Limitations*/
+    .limit-block {
+      background: #fff8e6;
+      border-left: 3px solid var(--gold);
+      border-radius: 0 4px 4px 0;
+      padding: 1rem 1.4rem;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+      color: #7a6020;
+      line-height: 1.7;
+    }
+    .limit-block strong { color: #5a4010; }
+
+    /* Section quick-nav */
+    .about-nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 0;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .about-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.70rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: all 0.15s;
+    }
+    .about-pill:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Word<span>Stage</span></a>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="observations.html">Observations</a></li>
+    <li><a href="about.html" class="active">About</a></li>
+  </ul>
+</nav>
+
+<!-- Header-sottotitolo -->
+<div class="about-header">
+  <span class="section-label">Dataset · Method · Tools · Limitations</span>
+  <h1>About this project</h1>
+  <p>This page describes how the project was built: the dataset chosen, the methods used to analyse it, and the tools that made it possible.</p>
+</div>
+
+<!-- Sezioni -->
+<div class="about-nav">
+  <a href="#intro"       class="about-pill">Introduction</a>
+  <a href="#dataset"     class="about-pill">Dataset</a>
+  <a href="#method"      class="about-pill">Method</a>
+  <a href="#tools"       class="about-pill">Tools</a>
+  <a href="#limitations" class="about-pill">Limitations</a>
+</div>
+
+<main>
+<div class="about-body">
+
+  <!-- Introduzione -->
+  <div class="about-section" id="intro">
+    <h2>Introduction</h2>
+    <p>This project was built by someone approaching computational text methods for the first time. The analysis reflects genuine study and a real effort to understand not just how to run the tools and what their results actually mean. That effort has limits: the knowledge here was built over the course of the project itself, within the limitations of time and equipment. This page also shows where those limitations shaped or affected the work.</p>
+  </div>
+
+  <!-- Dataset -->
+  <div class="about-section" id="dataset">
+    <h2> Dataset</h2>
+    <p>The speeches analysed in this project come from the <strong>UN General Debate Corpus (UNGDC)</strong>, a structured collection of statements delivered at the United Nations General Assembly General Debate, the annual session, usually held in September, in which each member state addresses the international community.</p>
+    <p>The corpus was originally made by <strong>Slava Jankin, Alexander Baturo, and Niheer Dasandi</strong>, who introduced it in a 2017 paper,  "Words to unite nations: The complete UN General Debate Corpus, 1946-present." doi: 10.1177/00223433241275335, in <em>Research &amp; Politics</em> as a resource for studying state preferences through text. Their work showed that the General Debate speeches, despite their being rhetoric, have consistent and measurable information about how governments see global problems and position themselves internationally.</p>
+
+    <div class="cite-block">
+      Harvard Dataverse · <a href="https://doi.org/10.7910/DVN/0TJX8Y" target="_blank">doi: 10.7910/DVN/0TJX8Y</a><br>
+      Full text of speeches from 1946 to the present · metadata: country, year, session, speaker name and role
+    </div>
+
+    <p>For this project, the corpus was filtered to cover <strong>2003 to 2023</strong>: twenty-one years, 4,046 speeches, 197 countries. The decision to stop at 2023 rather than include 2024 was deliberate: official English translations of the 2024 speeches were not available yet at the time of the analysis (it was written that only an AI English translation was available).</p>
+  </div>
+
+  <!-- Metodo -->
+  <div class="about-section" id="method">
+    <h2>Method</h2>
+    <p>The study began with the cleaning of the metadata file supplied with the corpus, a spreadsheet with session number, year, country, speaker name, and role for each speech. This was done manually in Excel: column names were standardised, missing or inconsistent values were identified and corrected, and duplicate entries removed.  It was important to have cleaned metadata to link each text file to the correct country and year: in particular, some countries appeared under different names referring to the same place.</p>
+
+    <p>Speeches  are stored as individual <code>.txt</code> files, one per speech, named according to the convention <em>country_session_year.txt</em> and came out in different folders: one per session.  These were loaded into R and joined to the cleaned metadata using country code (iso_code), session number, and year as keys, producing a single structured corpus in which every document carries its full set of metadata. This step transformed 4,046 separate files into a unified dataset ready for analysis.</p>
+
+    <p>The texts then went through a cleaning pipeline: punctuation and numbers were removed, everything was converted to lowercase, and a custom stopword list was applied on top of the standard English stopwords. The custom list targeted diplomatic language that appears in almost every speech regardless of content such as greetings to the Assembly President, references to the host country, standard opening formulas. These words are technically very frequent but probably  carry no meaningful information about content. What remained was lemmatized, meaning each word was reduced to its base form, so that <em>developing</em>, <em>developed</em>, and <em>development</em> would all be counted as the same term.</p>
+
+    <p>The analysis proceeded on two parallel lines. In R, the corpus was analysed using Latent Dirichlet Allocation (LDA) with Gibbs sampling to identify the dominant thematic structure across all 4,046 speeches. At the same time, the cleaned texts were exported as 21 separate files, one per year, each containing all the speeches delivered in that year, and uploaded together into <strong>Voyant Tools</strong> to track word frequencies, stable terms, and turning points across the full twenty-one year period. The two approaches are complementary:frequency trends visible in Voyant helped contextualise the topic clusters emerging from the LDA model.</p>
+
+    <p>For the topic model, the number of topics was determined through an iterative process. An initial model had 20 topics, a number suggested by the size of the corpus and its vocabulary, and produced results where several clusters overlapped without any clear thematic distinction between them or giving further information. Reducing the number to 15 produced a more interpretable map of the corpus, where most topics could be assigned a coherent label based on their top terms and the countries most associated with them, even if two topics still captured a more generic rhetorical register. The final model was run with 1000 iterations and a burn-in period of 200. Topics were interpreted manually by examining the highest-probability terms in each cluster and the countries most consistently associated with each one.</p>
+
+<p>Sentiment analysis was run in R using the Bing lexicon, which assigns fixed positive or negative values to individual words. Lexicon-based methods have known limitations in diplomatic text: a word like <em>peace</em> can signal genuine aspiration or strategic pressure depending on who is speaking, and terms like <em>conflict</em>, <em>war</em>, and <em>sanction</em> are politically central but semantically ambiguous in ways a dictionary cannot resolve. For this reason the sentiment scores are not used as a primary interpretive tool. They appear in the Observations page only once, as a supporting signal for 2022, where the result is anomalous enough to be worth noting despite the method's limitations.</p>
+  </div>
+
+  <!-- Strumenti -->
+  <div class="about-section" id="tools">
+    <h2>Tools</h2>
+    <p>The following tools were used across the different stages of the project.</p>
+    <p>As said, Excel has been used for manual cleaning and standardisation of the corpus metadata file.</p>
+    <p> Then, the statistical analysis preprocessing, topic modeling, network analysis of term co-occurrences, was made in R, using the packages tidyverse, tidytext, topicmodels, igraph, and ggraph among others.</p>
+    <p> To explore temporal trends, the cleaned corpus was exported as a set of 21 separate text files, one per year, and uploaded together into Voyant Tools. This structure allows Voyant to treat each year as a distinct document within the same corpus, making it possible to track how the frequency of individual words rises and falls across the full twenty-one year period. The frequency trend visualizations on the main page of this project were produced directly in Voyant. There was a minor distortion as 2019 has the longest speeches on average, but this does not appear to significantly affect the output. </p>
+    <p> All web pages were written and built in HTML and CSS, and published via GitHub Pages. </p>
+        
+    <p>The geographic visualizations were built from the topic modeling output, which assigns a dominant topic to each country based on the distribution of its speeches across the 21 year period. The interactive map on the home page and the network on the Observations page both come from this same source.</p>
+  </div>
+
+  <!-- Limiti -->
+  <div class="about-section" id="limitations">
+    <h2>Limitations</h2>
+    <p>Some of the choices made in this analysis were discretionary, and it is worth being explicit about them.</p>
+    <p>    The 15 topics were chosen after testing, they were not derived from a formal optimisation criterion. Starting with 20 was not arbitrary: it was based on the size of the corpus and its vocabulary, which could reasonably support that level of granularity. But when the model ran, several topics overlapped too much to be distinguished, so the number was reduced to 15. That produced a cleaner result. Cleaner means  more interpretable to a human reader, not more statistically correct. A different person could have made different decisions at the preprocessing stage and arrived at a different number, and a different map of the same corpus.</p>   
+
+    <p>More broadly, topic modeling is a probabilistic method. Two topics in the final model capture a generic register without showing  a clear theme. They seem to be made of general diplomatic language that goes across many countries and years without belonging to any of them in particular. This problem can be addressed to the fact that these are institutional texts where a lot of vocabulary is shared across documents and the algorithm sometimes produces a cluster that catches all instead of a meaningful one. These topics are kept in the analysis.</p>
+    
+       <p>Also the structure of the corpus itself can be seen as a limitation: every country delivers one speech per year no matter the size, population, or global influence. This means the topic distribution reflects the formal equality of the UN system not the actual distribution of political power. There must be a structural bias is built into the data, and it must be kept in mind when reading the outputs.</p>
+    
+
+      <p>Finally, and most importantly: this is an analysis of language, not of politics. What the model shows is how countries talk at the General Assembly but it doesn't necessarily reflect what they do, what they believe, or what effect their words have. Even if the patterns come from the dataset, the interpretation is human.</p>
+    </div>
+    </div>
+
+</main>
+
+<footer>
+  <p>Word Stage · UN General Debate Text Analysis 2003-2023 · <a href="about.html">Details</a></p>
+  <p class="footer-author">Veronica Lucchini · Digital Humanities 2025/2026</p>
+</footer>
+
+</body>
+</html>

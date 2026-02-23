@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observations — Word Stage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+
+  <style>
+    /* Layout */
+    .obs-header {
+      padding: 8rem 2rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+    .obs-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      margin-bottom: 1rem;
+    }
+    .obs-header p {
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.75;
+      font-size: 1rem;
+    }
+
+    .obs-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .obs-section:last-child { border-bottom: none; }
+
+    .obs-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      margin-bottom: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .obs-body {
+      max-width: 720px;
+    }
+    .obs-body p {
+      line-height: 1.85;
+      color: var(--muted);
+      font-size: 0.97rem;
+      margin-bottom: 1.1rem;
+    }
+    .obs-body p:last-child { margin-bottom: 0; }
+    .obs-body em { color: var(--ink); font-style: italic; }
+    .obs-body strong { color: var(--ink); font-weight: 500; }
+
+    /* blocchi voyant */
+    .viz-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 2.5rem 0;
+    }
+    .viz-block iframe {
+      width: 100%;
+      height: 440px;
+      border: none;
+      display: block;
+    }
+    .viz-caption {
+      padding: 0.9rem 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      line-height: 1.6;
+    }
+    .viz-caption strong { color: var(--ink); }
+.net-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    /* riquadri navigazione */
+    .obs-nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 0;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .obs-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.70rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: all 0.15s;
+    }
+    .obs-pill:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* mappa */
+    #map-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      margin: 2rem 0;
+    }
+    #map-svg { width: 100%; height: auto; display: block; cursor: grab; }
+    #map-svg:active { cursor: grabbing; }
+    .country-path { stroke: var(--border); stroke-width: 0.4; transition: opacity 0.2s; }
+    .country-path:hover { stroke: var(--ink); stroke-width: 1.2; cursor: pointer; }
+    .map-legend {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.2rem;
+      background: rgba(255,255,255,0.3);
+    }
+    .legend-item {
+      display: flex; align-items: center;
+      gap: 0.4rem; font-size: 0.72rem; color: var(--muted);
+      cursor: pointer; font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .legend-item:hover { color: var(--ink); }
+    .legend-item.active { color: var(--ink); font-weight: 500; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink:0; }
+    #map-tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--ink); color: #fff;
+      padding: 0.55rem 0.85rem; border-radius: 4px;
+      font-size: 0.78rem; opacity: 0; z-index: 1000;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.5;
+      transition: opacity 0.1s;
+    }
+    #map-tooltip strong { display:block; margin-bottom: 0.15rem; }
+    #map-tooltip .tip-topic { color: var(--gold); font-size: 0.72rem; }
+    .map-controls {
+      position: absolute; top: 10px; right: 10px;
+      display: flex; flex-direction: column; gap: 5px; z-index: 5;
+    }
+    .map-btn {
+      width: 28px; height: 28px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 3px; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink); transition: background 0.2s;
+    }
+    .map-btn:hover { background: var(--border); }
+    .map-note {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-align: right;
+      margin-top: 0.5rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Word<span>Stage</span></a>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="observations.html" class="active">Observations</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<!-- Page header -->
+<div class="obs-header">
+  <span class="section-label">UN General Debate · 2003-2023</span>
+  <h1>Observations</h1>
+  <p>4,046 speeches. 197 countries. 21 years. In this analysis the corpus can be read in three ways: through the words that stay constant across the period, the ones that shift with events, and the map of which countries talk about what.</p>
+</div>
+
+<!-- Section quick-links -->
+<div class="obs-nav">
+  <a href="#stable-core" class="obs-pill">Stable Core</a>
+  <a href="#changing-over-time" class="obs-pill">Changing Over Time</a>
+  <a href="#topics-geography" class="obs-pill">Topics and Geography</a>
+</div>
+
+<main>
+
+  <!-- parte termini fissi -->
+  <section class="obs-section" id="stable-core">
+    <span class="section-label">Section 1</span>
+    <h2>Stable Core</h2>
+
+    <div class="obs-body">
+      <p>Every September, the United Nations General Assembly opens its annual debate. Heads of state, foreign ministers, and diplomats from member states speak one by one about the state of the world and how their country sees it. Even though there is no mandatory agenda or format, reading these speeches together reveals a coherence and a shared language that is not only the formal diplomatic one, and that persists through two decades changings and events as wars, financial crises, a global pandemic, and the accelerating effects of climate change.</p>
+      <p>This analysis is based on 4,046 speeches delivered between 2003 and 2023, covering 197 countries and over 3.5 million words.</p>
+      <p>The word cloud below is the most intuitive entry point into the corpus. The size of each word is proportional to how often it appears across all 21 years of speeches combined.</p>
+      <p>Let's take a look</p>
+    </div>
+
+    <!-- word cloud -->
+    <div class="viz-block">
+      <iframe
+        src="https://voyant-tools.org/?corpus=f08a0442a7e77ffcac57c625787cc249&view=Cirrus"
+        allowfullscreen loading="lazy"
+        title="Voyant Cirrus — Word Cloud, full corpus 2003–2023">
+      </iframe>
+      <div class="viz-caption">
+        <strong>Word cloud: full corpus (2003–2023).</strong> Term size is proportional to frequency after stopword removal. Interactive: hover over any term for its exact count. Made with Voyant Tools.
+      </div>
+    </div>
+
+    <div class="obs-body">
+      <p>Development is the biggest. Peace, human, community, support, climate, change follow. What can surprise is not that these words appear, these are UN speeches, but how stable this picture remains when you look at it year by year.</p>
+      <p>The trends chart below tracks the most frequent terms across all 21 years. Vocabulary that stays the same even when the world changes: <em>development</em>, <em>peace</em>, <em>human</em>, <em>support</em>, <em>right</em>, <em>effort</em>, <em>community</em>, <em>challenge</em>, <em>economic</em>, <em>change</em>: these words appear at the top of the frequency list in every single year in all 21 in the corpus, regardless of what was happening in the world at the time of the speeches.</p>
+    </div>
+
+    <!-- voyant trends (stabili) -->
+    <div class="viz-block">
+      <iframe
+        src="https://voyant-tools.org/?corpus=f08a0442a7e77ffcac57c625787cc249&query=support*&query=human*&query=development&query=economic*&query=peace*&mode=&view=Trends"
+        allowfullscreen loading="lazy"
+        title="Voyant Trends — terms stable over time">
+      </iframe>
+      <div class="viz-caption">
+        <strong>Trends:  stable words across the period.</strong> Relative frequency by year (2003-2023). Interactive: click any term in the legend to activate it. Made with Voyant Tools.
+      </div>
+    </div>
+
+    <div class="obs-body">
+      <p>This stability is confirmed by two different methods. The R analysis processes all 4,046 speeches individually, measuring term frequency at the level of each document and aggregating results across the full corpus. Voyant Tools works on the same already cleaned texts but reads them as a set of 21 annual documents rather than thousands of individual speeches. So there is a difference in aggregation, but they arrive at almost identical top terms. <em>Development</em> is at the top in both: 34.031 occurrences in R, 33.008 in Voyant. The gap (less than 3%) can reflect the different aggregation logic and not a substantive disagreement.</p>
+      <p>But why is it so interesting that some words remain still even when the world has changed so much? It is about the timeline. The corpus covers some of the most relevant events of the past twenty years: it starts in the aftermath of September 11 and the invasion of Iraq, then moves through the 2008 global financial crisis, the Arab Spring, the Syrian civil war, the Ukrainian conflict beginning in 2014, the COVID-19 pandemic, and the Russian invasion of Ukraine in 2022. Any one of these events might seem enough to reorganize the most used words, and yet the core vocabulary stays the same.</p>
+      <p>Even in 2003, with the Security Council split over Iraq and the entire multilateral system under strain, <em>development</em> was still the most frequent word in the General Debate. In 2009, with the global financial system in crisis, <em>development</em> and <em>peace</em> held their positions. In 2020, when <em>pandemic</em> and <em>covid</em> exploded into the corpus from almost zero, they did not take the place of the core terms. But they actually added to the vocabulary without replacing anything.</p>
+      <p>Probably, this is not accidental. It reflects something structural about how the General Debate works. Every country, regardless of its size, its political system, or its specific agenda, operates within a shared diplomatic register. Whether this is because countries genuinely need this language to be taken seriously, or because it has become standard practice, or because the General Debate is not really the arena where the most direct conversations happen. The stable core is less a description of what countries care about and more a description of the language they must use to care about anything at the UN.</p>
+      <p>The term co-occurrence network produced by the R analysis adds a further layer. <em>Development</em>, <em>peace</em>, <em>rights</em>, <em>human</em>, <em>climate</em>, and <em>sustainable</em> form a dense central cluster, with hundreds of other terms radiating from them. It shows that these words are not just frequent: they are structurally central. They are the hubs through which almost all diplomatic discourse passes, which is not a coincidence.</p>
+      <p>The vocabulary density of the corpus, measured by Voyant at 0.010, puts a number on this concentration. Out of 36,035 unique word forms across 3.5 million words, the top five terms cover a disproportionate share of the text, suggesting not just institutional habit, but something closer to a shared diplomatic code.</p>
+    </div>
+  </section>
+
+  <!-- changings:-->
+  <section class="obs-section" id="changing-over-time">
+    <span class="section-label">Section 2</span>
+    <h2>Changing Over Time</h2>
+
+    <div class="obs-body">
+      <p>Beneath the stable surface, the corpus shifts. Some words rise, others fall, and a few appear suddenly where before there was nothing. The chart below tracks a different set of terms, chosen not for their overall frequency but for what their trajectories reveal about how global events enter, or do not enter, the language of multilateral diplomacy.</p>
+    </div>
+
+    <!-- Variable trends -->
+    <div class="viz-block">
+      <iframe
+        src="https://voyant-tools.org/?corpus=f08a0442a7e77ffcac57c625787cc249&query=nuclear*&query=conflict*&query=terrorism&query=covid*&query=pandemic*&query=sustainable&query=climate*&mode=&view=Trends"
+        allowfullscreen loading="lazy"
+        title="Voyant Trends — terms changing over time">
+      </iframe>
+      <div class="viz-caption">
+        <strong>Trends terms changing across the period.</strong> Relative frequency by year (2003–2023). Interactive: click any term in the legend to toggle it. Produced with Voyant Tools.
+      </div>
+    </div>
+
+    <div class="obs-body">
+      <p>This trend chart shows how different words move across the 21 years. Some of these movements are easy to explain while others can be more surprising.Reading these movements together, four distinct periods stand out, and they align with the major institutional turning points through which the UN itself has marked its recent history.</p>
+
+      <p>The word <em>terrorism</em> peaks sharply in 2003-2005 and then begins a long decline. September 11 happened in 2001; the invasions of Afghanistan and Iraq followed. The language of the General Debate absorbed these events even as the core words stayed fixed. These were also the years of the Millennium Development Goals, adopted in 2000 and in full implementation during this period: <em>goals</em>, <em>poverty</em>, <em>aid</em>, <em>millennium</em> all carry weight in the corpus here. The General Debate in these years was pulled between the longterm development agenda the UN had spent years building and a security emergency that arrived suddenly and would not leave.</p>
+
+      <p>By 2008 terrorism had already begun to fade, and a different word takes its place: economic. The financial crisis enters the corpus the same year it hits the global economy, and <em>crisis</em>, <em>financial</em>, and <em>recovery</em> follow. What is interesting is not just that these words appear in those years, but that the core vocabulary stays the same. These are also the years when the international community began talking about what would eventually become the 2030 Agenda. The corpus in this period has a transitional quality: old frameworks winding down, new ones not yet arrived. <em>Conflict</em> stays present through all of it: the Syrian civil war, the early Ukraine crisis, but without a spike. It accumulates rather than erupts.</p>
+
+      <p>There is a clear turning point in 2015, when <em>sustainable</em> and <em>climate</em> both begin rising and do not come back down (even if there's been little rising before). September 2015 was when the UN General Assembly adopted the 17 Sustainable Development Goals; three months later came the Paris Agreement. The speed with which this vocabulary spread across 197 countries is one of the clearest signals in the corpus. It suggests that when the UN adopts a framework, the language follows almost immediately, across very different governments.</p>
+
+      <p><em>Pandemic</em> and <em>covid</em> are effectively invisible in the chart until 2020, then spike higher than almost anything else in the dataset. A new vocabulary arrived fully formed in a single year, the sharpest disruption the corpus shows. But the most significant signal in this final period is not the COVID spike. It is what the sentiment analysis shows for 2022: the lowest average score of any year in the entire dataset, lower even than 2003. The result is striking enough to mention even if lexicon-based sentiment analysis has known limitations in diplomatic text, where words like <em>conflict</em> or <em>war</em> carry very different weight depending on context. No other year in these  twentyone years of speeches produced anything comparable. The most plausible reading is that the Russian invasion of Ukraine, the first time in the post-Cold War period that a permanent member of the Security Council launched a full-scale war against a UN member state, which reorganized the emotional register of the General Debate in a way that earlier crises had not. Wars, financial crises, geopolitical shifts, all left traces in the corpus, but 2022 stands apart.</p>
+    </div>
+<!-- Sentiment evolution -->
+      <div class="obs-body">
+        <p>A note on method: the chart below comes from a lexicon-based sentiment analysis run in R using the Bing dictionary, which assigns fixed positive or negative values to individual words regardless of context. In diplomatic text this is a rough measure — a word like <em>conflict</em> or <em>war</em> can appear in very different registers depending on who is speaking and why. The scores should be read as a general signal, not as a precise measure of emotional tone.</p>
+        <p>With that caveat, the 2022 result is unusual enough to be worth showing. The chart tracks the average normalised sentiment score per year from 2003 to 2023, with the shaded band representing the standard deviation across speeches in each year.</p>
+      </div>
+
+      <div class="viz-block" style="max-width:400px;">
+        <img
+          src="sentiment_evolution.png"
+          alt="Line chart showing average sentiment score in UN speeches from 2003 to 2023. Scores are generally positive but drop sharply in 2022 to the lowest point in the dataset."
+          style="width:100%; display:block;"
+        >
+        <div class="viz-caption">
+          <strong>Sentiment evolution (2003–2023).</strong> Average normalised Bing sentiment score per year. The shaded band shows ±1 standard deviation across speeches. 2022 records the lowest average in the dataset (0.184), below even 2003 (0.187). Produced in R with the tidytext package.
+        </div>
+      </div>
+
+      <div class="obs-body">
+        <p>Every year in the corpus produces a positive average score, which is consistent with the aspirational register of General Debate speeches. The floor drops in 2003 and again in 2008, both years of acute international stress, but recovers relatively quickly. 2022 is different: it records the lowest average score of the entire twenty-year period, 0.184, lower than both 2003 and the years of the financial crisis. The shaded band also widens, meaning speeches diverged more than usual that year. The most plausible explanation is the Russian invasion of Ukraine. No other event in the corpus produced a comparable signal.</p>
+      </div>
+    </section>
+  <!-- topics -->
+  <section class="obs-section" id="topics-geography">
+    <span class="section-label">Section 3</span>
+    <h2>Topics and Geography</h2>
+
+    <div class="obs-body">
+      <p>The first two sections describe what the corpus says and how it changes over time. This section is about who says what, and why geography offers a useful and different  perspective from which  read the speeches.</p>
+      <p>Geography matters here not as a background variable but as a lens. Looking at which countries cluster around which topics can show differences that frequency analysis alone cannot show: who was talking about certain problems before they became shared priorities. It can happen that some trends that  emerge late  were already consistent and persistent in the speeches of a small group of countries long before they became mainstream concerns.</p>
+      <p>The LDA topic model identified 15 latent themes across the corpus. Each country's speeches were assigned a dominant topic based on the probability distribution across all 21 years. </p>
+    </div>
+
+    <!--  Mappa -->
+    <div id="map-container">
+      <div class="map-controls">
+        <button class="map-btn" id="zoomIn" title="Zoom in">+</button>
+        <button class="map-btn" id="zoomOut" title="Zoom out">−</button>
+        <button class="map-btn" id="zoomReset" title="Reset" style="font-size:0.75rem;">↺</button>
+      </div>
+      <svg id="map-svg" viewBox="0 0 960 500" style="height:500px;"></svg>
+      <div id="map-legend" class="map-legend"></div>
+      <div class="viz-caption">
+        <strong>Dominant topic by country (2003–2023).</strong> Each country is coloured by the LDA theme with the highest average probability across all its speeches. Click a legend item to highlight a single topic. Source: LDA 15-topic model · 2003–2023.
+      </div>
+    </div>
+    <p class="map-note">Dominant topic assigned by the model across the full 2003–2023 period</p>
+    <div class="obs-body">
+      <p>Most countries connect to multiple topics without strong concentration in any one. A smaller number show a dominant attachment to a single theme, and these can be considered the most analytically revealing cases, pointing to situations where a country's position in the world has anticipated or has had intuition about what for the General Debate becomes, year after year, an issue.</p>
+
+      <p>Northeast Asia: North and South Korea, Japan, and China together account for the majority of speeches on the Nuclear Disarmament topic: a Northeast Asian security conversation proposed annually on the UN floor, largely absent from the speeches of other regions.</p>
+
+      <p>Small island states:Marshall Islands, Kiribati, Tuvalu, and Palau concentrated their speeches on climate and small island vulnerability across all four eras and the 21 year period, long before the Paris Agreement made climate a mainstream diplomatic priority. Maybe because for these countries, climate was an existential issue well before it became internationally recognized as one. They are probably the most coherent  bloc in the dataset: a group of geographically marginal states that used the General Debate consistently to keep one issue on the agenda until the rest of the world sees the issue and recognize it.</p>
+
+      <p>The Gulf states.The UAE, Bahrain, Kuwait, Egypt, and Oman allocate a majority of their UN speech time to the Palestinian question across the entire twenty-year period, with a consistency that no other regional bloc in the corpus matches.</p>
+
+      <p>Central Asia.Turkmenistan, Uzbekistan, Kazakhstan, Kyrgyzstan, and Tajikistan form a bloc around regional cooperation, framing their speeches in a shared post-Soviet register that is linguistically distinct from every other part of the corpus.</p>
+
+      <p>Two topics in the model, Generic Rhetoric A and Generic Rhetoric B, need a note . Their top countries include France, Germany, the United States, and the United Kingdom: states with some of the greatest economy and influence within the UN system. That the most powerful actors in the room produce the least thematically defined language is not necessarily incoherent. It may instead means that generality itself is positioning. It can't be said if this reflects genuine breadth of concern, diplomatic convention, or simply the fact that for most countries the General Debate is one of the few occasions to address the full range of issues at once. </p>
+
+      <p>Most countries, however, do not follow  any of these patterns. The majority engage across those generic topics that work for most countries: development, human rights, security, and climate without concentrating in any single area.</p>
+    </div>
+  </section>
+
+</main>
+
+<div id="map-tooltip"></div>
+
+<footer>
+  <p>Word Stage · UN General Debate Text Analysis 2003–2023 · <a href="about.html">Observations</a></p>
+  <p class="footer-author">Veronica Lucchini · Digital Humanities 2025/2026</p>
+</footer>
+
+<script>
+const rawData = [
+  {iso:"ARE",topic:11,n:21,gamma:0.369},{iso:"BHR",topic:11,n:21,gamma:0.356},{iso:"KWT",topic:11,n:21,gamma:0.355},
+  {iso:"MHL",topic:3,n:21,gamma:0.35},{iso:"PRK",topic:1,n:21,gamma:0.374},{iso:"SLB",topic:3,n:21,gamma:0.311},
+  {iso:"TCD",topic:2,n:21,gamma:0.302},{iso:"EGY",topic:11,n:20,gamma:0.273},{iso:"OMN",topic:11,n:20,gamma:0.318},
+  {iso:"PSE",topic:11,n:20,gamma:0.4},{iso:"QAT",topic:11,n:20,gamma:0.296},{iso:"BDI",topic:2,n:19,gamma:0.256},
+  {iso:"COD",topic:2,n:19,gamma:0.262},{iso:"COG",topic:2,n:19,gamma:0.265},{iso:"KIR",topic:3,n:19,gamma:0.291},
+  {iso:"NIC",topic:7,n:19,gamma:0.278},{iso:"PLW",topic:3,n:19,gamma:0.323},{iso:"TUV",topic:3,n:19,gamma:0.367},
+  {iso:"USA",topic:9,n:19,gamma:0.302},{iso:"BFA",topic:2,n:18,gamma:0.286},{iso:"CAF",topic:2,n:18,gamma:0.327},
+  {iso:"FSM",topic:3,n:18,gamma:0.356},{iso:"PNG",topic:3,n:18,gamma:0.263},{iso:"TKM",topic:13,n:18,gamma:0.477},
+  {iso:"UZB",topic:13,n:18,gamma:0.348},{iso:"COM",topic:2,n:17,gamma:0.23},{iso:"KAZ",topic:13,n:17,gamma:0.275},
+  {iso:"KGZ",topic:13,n:17,gamma:0.305},{iso:"MAR",topic:11,n:17,gamma:0.272},{iso:"MLI",topic:2,n:17,gamma:0.286},
+  {iso:"TJK",topic:13,n:17,gamma:0.302},{iso:"YEM",topic:11,n:17,gamma:0.281},{iso:"BOL",topic:7,n:16,gamma:0.257},
+  {iso:"DMA",topic:3,n:16,gamma:0.283},{iso:"GAB",topic:2,n:16,gamma:0.241},{iso:"GIN",topic:2,n:16,gamma:0.299},
+  {iso:"GNB",topic:2,n:16,gamma:0.267},{iso:"GRD",topic:3,n:16,gamma:0.254},{iso:"KOR",topic:1,n:16,gamma:0.299},
+  {iso:"LBN",topic:11,n:16,gamma:0.274},{iso:"LCA",topic:3,n:16,gamma:0.224},{iso:"TGO",topic:2,n:16,gamma:0.259},
+  {iso:"TON",topic:3,n:16,gamma:0.34},{iso:"WSM",topic:3,n:16,gamma:0.292},{iso:"CIV",topic:2,n:15,gamma:0.303},
+  {iso:"IRQ",topic:11,n:15,gamma:0.25},{iso:"NRU",topic:3,n:15,gamma:0.307},{iso:"SMR",topic:6,n:15,gamma:0.226},
+  {iso:"TUN",topic:11,n:15,gamma:0.275},{iso:"VAT",topic:7,n:15,gamma:0.215},{iso:"ATG",topic:3,n:14,gamma:0.226},
+  {iso:"AZE",topic:8,n:14,gamma:0.263},{iso:"BHS",topic:3,n:14,gamma:0.235},{iso:"CUB",topic:7,n:14,gamma:0.274},
+  {iso:"CYP",topic:11,n:14,gamma:0.197},{iso:"FRA",topic:4,n:14,gamma:0.28},{iso:"ISR",topic:4,n:14,gamma:0.326},
+  {iso:"LAO",topic:14,n:14,gamma:0.246},{iso:"VCT",topic:3,n:14,gamma:0.191},{iso:"GBR",topic:9,n:13,gamma:0.254},
+  {iso:"LIE",topic:6,n:13,gamma:0.28},{iso:"MDA",topic:13,n:13,gamma:0.195},{iso:"PRY",topic:7,n:13,gamma:0.236},
+  {iso:"RUS",topic:13,n:13,gamma:0.275},{iso:"STP",topic:2,n:13,gamma:0.219},{iso:"SWE",topic:6,n:13,gamma:0.215},
+  {iso:"VEN",topic:7,n:13,gamma:0.253},{iso:"VUT",topic:3,n:13,gamma:0.246},{iso:"AFG",topic:9,n:12,gamma:0.218},
+  {iso:"AGO",topic:2,n:12,gamma:0.223},{iso:"CHE",topic:6,n:12,gamma:0.206},{iso:"IRN",topic:8,n:12,gamma:0.245},
+  {iso:"JPN",topic:1,n:12,gamma:0.246},{iso:"SAU",topic:11,n:12,gamma:0.372},{iso:"SYC",topic:3,n:12,gamma:0.26},
+  {iso:"SYR",topic:8,n:12,gamma:0.357},{iso:"BGD",topic:12,n:11,gamma:0.229},{iso:"BIH",topic:13,n:11,gamma:0.229},
+  {iso:"BLR",topic:13,n:11,gamma:0.253},{iso:"CMR",topic:2,n:11,gamma:0.216},{iso:"DEU",topic:4,n:11,gamma:0.23},
+  {iso:"DNK",topic:6,n:11,gamma:0.218},{iso:"ECU",topic:7,n:11,gamma:0.251},{iso:"GTM",topic:12,n:11,gamma:0.205},
+  {iso:"HTI",topic:2,n:11,gamma:0.239},{iso:"LVA",topic:6,n:11,gamma:0.196},{iso:"MRT",topic:11,n:11,gamma:0.234},
+  {iso:"NER",topic:2,n:11,gamma:0.255},{iso:"NGA",topic:10,n:11,gamma:0.204},{iso:"ALB",topic:13,n:10,gamma:0.253},
+  {iso:"AUT",topic:6,n:10,gamma:0.219},{iso:"BEN",topic:2,n:10,gamma:0.217},{iso:"CHL",topic:7,n:10,gamma:0.21},
+  {iso:"CHN",topic:1,n:10,gamma:0.228},{iso:"DZA",topic:11,n:10,gamma:0.232},{iso:"ERI",topic:8,n:10,gamma:0.269},
+  {iso:"FJI",topic:3,n:10,gamma:0.214},{iso:"GUY",topic:15,n:10,gamma:0.226},{iso:"HND",topic:12,n:10,gamma:0.248},
+  {iso:"HUN",topic:4,n:10,gamma:0.258},{iso:"IRL",topic:6,n:10,gamma:0.225},{iso:"JOR",topic:11,n:10,gamma:0.31},
+  {iso:"MUS",topic:3,n:10,gamma:0.18},{iso:"NLD",topic:4,n:10,gamma:0.242},{iso:"SDN",topic:11,n:10,gamma:0.233},
+  {iso:"TTO",topic:3,n:10,gamma:0.199},{iso:"TUR",topic:11,n:10,gamma:0.177},{iso:"URY",topic:7,n:10,gamma:0.226},
+  {iso:"BRB",topic:3,n:9,gamma:0.256},{iso:"DOM",topic:15,n:9,gamma:0.272},{iso:"FIN",topic:6,n:9,gamma:0.21},
+  {iso:"GEO",topic:9,n:9,gamma:0.258},{iso:"GNQ",topic:7,n:9,gamma:0.227},{iso:"GRC",topic:13,n:9,gamma:0.181},
+  {iso:"ISL",topic:6,n:9,gamma:0.189},{iso:"JAM",topic:15,n:9,gamma:0.216},{iso:"KNA",topic:3,n:9,gamma:0.242},
+  {iso:"LUX",topic:6,n:9,gamma:0.191},{iso:"MCO",topic:6,n:9,gamma:0.16},{iso:"MKD",topic:13,n:9,gamma:0.204},
+  {iso:"MNE",topic:6,n:9,gamma:0.238},{iso:"ARM",topic:8,n:8,gamma:0.223},{iso:"BRA",topic:7,n:8,gamma:0.213},
+  {iso:"BWA",topic:10,n:8,gamma:0.2},{iso:"EU",topic:4,n:8,gamma:0.23},{iso:"LBR",topic:2,n:8,gamma:0.192},
+  {iso:"PAK",topic:8,n:8,gamma:0.235},{iso:"PER",topic:7,n:8,gamma:0.215},{iso:"PRT",topic:2,n:8,gamma:0.164},
+  {iso:"ROU",topic:13,n:8,gamma:0.196},{iso:"SOM",topic:9,n:8,gamma:0.229},{iso:"SSD",topic:2,n:8,gamma:0.244},
+  {iso:"SVN",topic:6,n:8,gamma:0.256},{iso:"SWZ",topic:10,n:8,gamma:0.2},{iso:"UKR",topic:13,n:8,gamma:0.25},
+  {iso:"ZMB",topic:10,n:8,gamma:0.243},{iso:"ARG",topic:4,n:7,gamma:0.3},{iso:"AUS",topic:9,n:7,gamma:0.213},
+  {iso:"BGR",topic:6,n:7,gamma:0.215},{iso:"BRN",topic:4,n:7,gamma:0.312},{iso:"BTN",topic:10,n:7,gamma:0.288},
+  {iso:"COL",topic:12,n:7,gamma:0.248},{iso:"EST",topic:6,n:7,gamma:0.255},{iso:"ETH",topic:2,n:7,gamma:0.199},
+  {iso:"IND",topic:10,n:7,gamma:0.236},{iso:"LBY",topic:11,n:7,gamma:0.206},{iso:"LSO",topic:10,n:7,gamma:0.197},
+  {iso:"LTU",topic:8,n:7,gamma:0.248},{iso:"MDV",topic:3,n:7,gamma:0.188},{iso:"MEX",topic:7,n:7,gamma:0.203},
+  {iso:"NOR",topic:6,n:7,gamma:0.196},{iso:"NZL",topic:3,n:7,gamma:0.228},{iso:"SRB",topic:4,n:7,gamma:0.28},
+  {iso:"SVK",topic:4,n:7,gamma:0.247},{iso:"THA",topic:9,n:7,gamma:0.213},{iso:"VNM",topic:1,n:7,gamma:0.212},
+  {iso:"AND",topic:4,n:6,gamma:0.243},{iso:"BEL",topic:6,n:6,gamma:0.202},{iso:"BLZ",topic:3,n:6,gamma:0.184},
+  {iso:"CAN",topic:4,n:6,gamma:0.243},{iso:"CRI",topic:6,n:6,gamma:0.201},{iso:"CZE",topic:4,n:6,gamma:0.213},
+  {iso:"DJI",topic:2,n:6,gamma:0.206},{iso:"GHA",topic:4,n:6,gamma:0.216},{iso:"HRV",topic:6,n:6,gamma:0.199},
+  {iso:"ITA",topic:4,n:6,gamma:0.251},{iso:"MOZ",topic:14,n:6,gamma:0.272},{iso:"MWI",topic:12,n:6,gamma:0.24},
+  {iso:"NPL",topic:14,n:6,gamma:0.165},{iso:"RWA",topic:9,n:6,gamma:0.183},{iso:"SLE",topic:10,n:6,gamma:0.228},
+  {iso:"SLV",topic:12,n:6,gamma:0.205},{iso:"ESP",topic:2,n:5,gamma:0.16},{iso:"IDN",topic:14,n:5,gamma:0.213},
+  {iso:"KEN",topic:5,n:5,gamma:0.225},{iso:"KHM",topic:14,n:5,gamma:0.2},{iso:"MDG",topic:12,n:5,gamma:0.219},
+  {iso:"MLT",topic:4,n:5,gamma:0.247},{iso:"MNG",topic:10,n:5,gamma:0.201},{iso:"MYS",topic:8,n:5,gamma:0.281},
+  {iso:"NAM",topic:10,n:5,gamma:0.227},{iso:"PAN",topic:12,n:5,gamma:0.238},{iso:"POL",topic:6,n:5,gamma:0.161},
+  {iso:"SEN",topic:2,n:5,gamma:0.186},{iso:"SUR",topic:14,n:5,gamma:0.199},{iso:"TZA",topic:2,n:5,gamma:0.222},
+  {iso:"UGA",topic:5,n:5,gamma:0.24},{iso:"ZAF",topic:10,n:5,gamma:0.186},{iso:"CPV",topic:5,n:4,gamma:0.192},
+  {iso:"GMB",topic:2,n:4,gamma:0.169},{iso:"LKA",topic:10,n:4,gamma:0.175},{iso:"MMR",topic:9,n:4,gamma:0.154},
+  {iso:"PHL",topic:4,n:4,gamma:0.289},{iso:"SGP",topic:5,n:4,gamma:0.381},{iso:"TLS",topic:2,n:4,gamma:0.19},
+  {iso:"ZWE",topic:10,n:4,gamma:0.202},{iso:"YUG",topic:8,n:2,gamma:0.309}
+];
+const dataByISO = {};
+rawData.forEach(d => { dataByISO[d.iso] = d; });
+const topicMeta = {
+   1: { label:"Nuclear Disarmament",        color:"#7b241c" },
+   2: { label:"Peace & Community",          color:"#b7770d" },
+   3: { label:"Small Islands & Climate",    color:"#0097a7" },
+   4: { label:"Generic Rhetoric A",         color:"#8e6bbf" },
+   5: { label:"COVID & Climate Action",     color:"#76b041" },
+   6: { label:"Human Rights & Law",         color:"#117a65" },
+   7: { label:"Human Rights & Democracy",   color:"#2471a3" },
+   8: { label:"Terrorism & War",            color:"#c0392b" },
+   9: { label:"Generic Rhetoric B",         color:"#1a6b8a" },
+  10: { label:"Development & Reform",       color:"#d4a843" },
+  11: { label:"Palestine & Arab Region",    color:"#d35400" },
+  12: { label:"Social Development",         color:"#7d3c98" },
+  13: { label:"Regional Cooperation",       color:"#1f618d" },
+  14: { label:"SDGs & Agenda 2030",         color:"#1e8449" },
+  15: { label:"Economic Crisis",            color:"#cb4335" }
+};
+const isoToName = {
+  "AFG":"Afghanistan","ALB":"Albania","DZA":"Algeria","AGO":"Angola",
+  "ARG":"Argentina","AUS":"Australia","AUT":"Austria","BGD":"Bangladesh",
+  "BEL":"Belgium","BTN":"Bhutan","BOL":"Bolivia","BIH":"Bosnia","BWA":"Botswana",
+  "BRA":"Brazil","BRN":"Brunei","BGR":"Bulgaria","MMR":"Myanmar","BDI":"Burundi",
+  "KHM":"Cambodia","CMR":"Cameroon","CAN":"Canada","CAF":"Central African Rep.",
+  "TCD":"Chad","CHL":"Chile","CHN":"China","COL":"Colombia","COG":"Congo",
+  "COD":"DR Congo","CRI":"Costa Rica","HRV":"Croatia","CUB":"Cuba","CYP":"Cyprus",
+  "CZE":"Czech Republic","DNK":"Denmark","DOM":"Dominican Republic","ECU":"Ecuador",
+  "EGY":"Egypt","SLV":"El Salvador","ERI":"Eritrea","EST":"Estonia","ETH":"Ethiopia",
+  "FJI":"Fiji","FIN":"Finland","FRA":"France","GAB":"Gabon","DEU":"Germany",
+  "GHA":"Ghana","GRC":"Greece","GTM":"Guatemala","GIN":"Guinea","GNB":"Guinea-Bissau",
+  "GUY":"Guyana","HTI":"Haiti","HND":"Honduras","HUN":"Hungary","IND":"India",
+  "IDN":"Indonesia","IRN":"Iran","IRQ":"Iraq","IRL":"Ireland","ISR":"Israel",
+  "ITA":"Italy","JAM":"Jamaica","JOR":"Jordan","KAZ":"Kazakhstan","KEN":"Kenya",
+  "PRK":"North Korea","KOR":"South Korea","KWT":"Kuwait","KGZ":"Kyrgyzstan",
+  "LAO":"Laos","LBN":"Lebanon","LSO":"Lesotho","LBR":"Liberia","LBY":"Libya",
+  "LTU":"Lithuania","LUX":"Luxembourg","MDG":"Madagascar","MWI":"Malawi",
+  "MYS":"Malaysia","MDV":"Maldives","MLI":"Mali","MLT":"Malta","MRT":"Mauritania",
+  "MEX":"Mexico","MDA":"Moldova","MNG":"Mongolia","MAR":"Morocco","MOZ":"Mozambique",
+  "NAM":"Namibia","NPL":"Nepal","NLD":"Netherlands","NZL":"New Zealand",
+  "NIC":"Nicaragua","NER":"Niger","NGA":"Nigeria","NOR":"Norway","OMN":"Oman",
+  "PAK":"Pakistan","PAN":"Panama","PNG":"Papua New Guinea","PRY":"Paraguay",
+  "PER":"Peru","PHL":"Philippines","POL":"Poland","PRT":"Portugal","QAT":"Qatar",
+  "ROU":"Romania","RUS":"Russia","RWA":"Rwanda","SAU":"Saudi Arabia",
+  "SEN":"Senegal","SLE":"Sierra Leone","SGP":"Singapore","SOM":"Somalia",
+  "ZAF":"South Africa","SSD":"South Sudan","ESP":"Spain","LKA":"Sri Lanka",
+  "SDN":"Sudan","SWE":"Sweden","CHE":"Switzerland","SYR":"Syria","TJK":"Tajikistan",
+  "THA":"Thailand","TGO":"Togo","TTO":"Trinidad and Tobago","TUN":"Tunisia",
+  "TUR":"Turkey","UGA":"Uganda","UKR":"Ukraine","ARE":"United Arab Emirates",
+  "GBR":"United Kingdom","USA":"United States","URY":"Uruguay","UZB":"Uzbekistan",
+  "VEN":"Venezuela","VNM":"Viet Nam","YEM":"Yemen","ZMB":"Zambia","ZWE":"Zimbabwe",
+  "PSE":"Palestine","MNE":"Montenegro","MKD":"North Macedonia","SRB":"Serbia",
+  "ARM":"Armenia","AZE":"Azerbaijan","GEO":"Georgia","BLR":"Belarus",
+  "TLS":"Timor-Leste","SLB":"Solomon Islands","WSM":"Samoa","TON":"Tonga",
+  "TUV":"Tuvalu","VUT":"Vanuatu","FSM":"Micronesia","KIR":"Kiribati",
+  "NRU":"Nauru","PLW":"Palau","MHL":"Marshall Islands","BLZ":"Belize",
+  "KNA":"St Kitts and Nevis","LCA":"St Lucia","VCT":"St Vincent","GRD":"Grenada",
+  "DMA":"Dominica","ATG":"Antigua and Barbuda","BRB":"Barbados","BHS":"Bahamas",
+  "GMB":"Gambia","MUS":"Mauritius","SYC":"Seychelles","AND":"Andorra",
+  "SMR":"San Marino","MCO":"Monaco","LIE":"Liechtenstein","BHR":"Bahrain",
+  "TKM":"Turkmenistan","TZA":"Tanzania","BFA":"Burkina Faso","CIV":"Côte d'Ivoire",
+  "JPN":"Japan","ISL":"Iceland","SWZ":"Eswatini","VAT":"Holy See",
+  "STP":"São Tomé and Príncipe","SUR":"Suriname","CPV":"Cape Verde",
+  "COM":"Comoros","DNQ":"Equatorial Guinea","DJI":"Djibouti","SVK":"Slovakia",
+  "SVN":"Slovenia","LVA":"Latvia"
+};
+const numericToAlpha3 = {
+  "004":"AFG","008":"ALB","012":"DZA","024":"AGO","032":"ARG","036":"AUS","040":"AUT",
+  "050":"BGD","056":"BEL","064":"BTN","068":"BOL","070":"BIH","072":"BWA","076":"BRA",
+  "096":"BRN","100":"BGR","104":"MMR","108":"BDI","116":"KHM","120":"CMR","124":"CAN",
+  "132":"CPV","140":"CAF","144":"LKA","152":"CHL","156":"CHN","170":"COL","174":"COM",
+  "178":"COG","180":"COD","188":"CRI","191":"HRV","192":"CUB","196":"CYP","203":"CZE",
+  "204":"BEN","208":"DNK","214":"DOM","218":"ECU","818":"EGY","222":"SLV","232":"ERI",
+  "233":"EST","231":"ETH","242":"FJI","246":"FIN","250":"FRA","266":"GAB","276":"DEU",
+  "288":"GHA","300":"GRC","320":"GTM","324":"GIN","624":"GNB","328":"GUY","332":"HTI",
+  "340":"HND","348":"HUN","356":"IND","360":"IDN","364":"IRN","368":"IRQ","372":"IRL",
+  "376":"ISR","380":"ITA","388":"JAM","400":"JOR","398":"KAZ","404":"KEN","410":"KOR",
+  "408":"PRK","414":"KWT","417":"KGZ","418":"LAO","422":"LBN","426":"LSO","430":"LBR",
+  "434":"LBY","440":"LTU","442":"LUX","450":"MDG","454":"MWI","458":"MYS","462":"MDV",
+  "466":"MLI","470":"MLT","478":"MRT","484":"MEX","498":"MDA","496":"MNG","504":"MAR",
+  "508":"MOZ","516":"NAM","524":"NPL","528":"NLD","554":"NZL","558":"NIC","562":"NER",
+  "566":"NGA","578":"NOR","586":"PAK","591":"PAN","598":"PNG","600":"PRY","604":"PER",
+  "608":"PHL","616":"POL","620":"PRT","634":"QAT","642":"ROU","643":"RUS","646":"RWA",
+  "682":"SAU","686":"SEN","694":"SLE","706":"SOM","710":"ZAF","728":"SSD","724":"ESP",
+  "729":"SDN","752":"SWE","756":"CHE","760":"SYR","762":"TJK","764":"THA","768":"TGO",
+  "780":"TTO","788":"TUN","792":"TUR","800":"UGA","804":"UKR","784":"ARE","826":"GBR",
+  "840":"USA","858":"URY","860":"UZB","862":"VEN","704":"VNM","887":"YEM","894":"ZMB",
+  "716":"ZWE","275":"PSE","499":"MNE","807":"MKD","688":"SRB","051":"ARM","031":"AZE",
+  "268":"GEO","112":"BLR","626":"TLS","090":"SLB","882":"WSM","776":"TON","798":"TUV",
+  "548":"VUT","583":"FSM","296":"KIR","520":"NRU","585":"PLW","584":"MHL","084":"BLZ",
+  "659":"KNA","662":"LCA","670":"VCT","308":"GRD","212":"DMA","028":"ATG","052":"BRB",
+  "044":"BHS","270":"GMB","480":"MUS","690":"SYC","020":"AND","674":"SMR","492":"MCO",
+  "438":"LIE","048":"BHR","148":"TCD","226":"GNQ","262":"DJI","336":"VAT","352":"ISL",
+  "384":"CIV","392":"JPN","428":"LVA","512":"OMN","678":"STP","702":"SGP","703":"SVK",
+  "705":"SVN","740":"SUR","748":"SWZ","795":"TKM","834":"TZA","854":"BFA"
+};
+
+// Build legend
+const legendEl = document.getElementById('map-legend');
+let activeFilter = null;
+Object.entries(topicMeta).forEach(([t, meta]) => {
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.dataset.topic = t;
+  item.innerHTML = `<span class="legend-dot" style="background:${meta.color}"></span>T${t} · ${meta.label}`;
+  item.addEventListener('click', () => {
+    if (activeFilter === t) {
+      activeFilter = null;
+      document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+      d3.selectAll('.country-path').attr('opacity', 1);
+    } else {
+      activeFilter = t;
+      document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      d3.selectAll('.country-path').attr('opacity', d => {
+        const iso = numericToAlpha3[String(d.id).padStart(3,'0')];
+        return (iso && dataByISO[iso] && String(dataByISO[iso].topic) === t) ? 1 : 0.08;
+      });
+    }
+  });
+  legendEl.appendChild(item);
+});
+
+// D3 Map
+const svgEl = document.getElementById('map-svg');
+const svg = d3.select('#map-svg');
+const g = svg.append('g');
+const projection = d3.geoNaturalEarth1().scale(153).translate([480, 250]);
+const path = d3.geoPath().projection(projection);
+const tooltip = d3.select('#map-tooltip');
+
+const zoom = d3.zoom().scaleExtent([1, 8]).on('zoom', e => g.attr('transform', e.transform));
+svg.call(zoom);
+document.getElementById('zoomIn').onclick = () => svg.transition().call(zoom.scaleBy, 1.5);
+document.getElementById('zoomOut').onclick = () => svg.transition().call(zoom.scaleBy, 0.67);
+document.getElementById('zoomReset').onclick = () => svg.transition().call(zoom.transform, d3.zoomIdentity);
+
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+  const countries = topojson.feature(world, world.objects.countries);
+  g.selectAll('.country-path')
+    .data(countries.features)
+    .join('path')
+    .attr('class', 'country-path')
+    .attr('d', path)
+    .attr('fill', d => {
+      const iso = numericToAlpha3[String(d.id).padStart(3,'0')];
+      return (iso && dataByISO[iso]) ? topicMeta[dataByISO[iso].topic]?.color || '#ddd8cc' : '#ddd8cc';
+    })
+    .on('mousemove', (event, d) => {
+      const iso = numericToAlpha3[String(d.id).padStart(3,'0')];
+      if (iso && dataByISO[iso]) {
+        const t = dataByISO[iso].topic;
+        tooltip
+          .style('opacity', 1)
+          .style('left', (event.clientX + 16) + 'px')
+          .style('top', (event.clientY - 12) + 'px')
+       .html(`<strong>${isoToName[iso] || iso}</strong><span class="tip-topic">Topic ${t} · ${topicMeta[t].label}</span>`);
+      } else {
+        tooltip.style('opacity', 0);
+      }
+    })
+    .on('mouseleave', () => tooltip.style('opacity', 0));
+}).catch(() => {
+  svgEl.innerHTML = '<text x="480" y="250" text-anchor="middle" fill="#999" font-size="14">Map data unavailable</text>';
+});
+</script>
+
+</body>
+</html>
