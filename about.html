@@ -159,6 +159,50 @@
 
     <p>The texts then went through a cleaning pipeline: punctuation and numbers were removed, everything was converted to lowercase, and a custom stopword list was applied on top of the standard English stopwords. The custom list targeted diplomatic language that appears in almost every speech regardless of content such as greetings to the Assembly President, references to the host country, standard opening formulas. These words are technically very frequent but probably  carry no meaningful information about content. What remained was lemmatized, meaning each word was reduced to its base form, so that <em>developing</em>, <em>developed</em>, and <em>development</em> would all be counted as the same term.</p>
 
+<!-- stopwords -->
+    <div style="margin: 1.5rem 0;">
+      <button id="stopwords-toggle" style="font-family:'DM Mono',monospace; font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); background:none; border:1px solid var(--border); border-radius:2px; padding:0.4rem 0.9rem; cursor:pointer; transition:all 0.15s;">
+        View custom stopword list 
+      </button>
+      <div id="stopwords-box" style="display:none; margin-top:1rem; padding:1.2rem 1.4rem; background:var(--card-bg); border:1px solid var(--border); border-radius:4px;">
+        <p style="font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:0.8rem; margin-top:0;">Custom ONU stopwords, applied on top of standard English stopwords</p>
+        <div id="stopwords-list"></div>
+      </div>
+    </div>
+
+    <script>
+    const customStopwords = [
+      "united","nations","nation","general","assembly","agendum",
+      "president","excellency","madam","distinguished","delegation",
+      "behalf","speaker","statement","international","world","global",
+      "security","council","organization","member","session","country",
+      "countries","people","peoples","state","states","government",
+      "governments","republic","minister","prime","foreign","also",
+      "must","will","one","new","year","years","today","well","time",
+      "per","cent","mr","mrs","ms","sir","said","would",
+      "treki","ashe","deiss","nassir","vuk","jeremic","abdussalam",
+      "eliasson","ping","kavan","hunte","lajcak","thomson","espinosa",
+      "bozkir","csaba","korosi","haya","sheikha","mogens","lykketoft",
+      "miroslav","fernanda","antonio","garces","volkan",
+      "nepad","daesh","covax","cop26","cop",
+      "ladies","gentlemen"
+    ];
+
+    const btn = document.getElementById('stopwords-toggle');
+    const box = document.getElementById('stopwords-box');
+    const list = document.getElementById('stopwords-list');
+
+    list.innerHTML = customStopwords.map(w =>
+      `<span style="display:inline-block; margin:0.2rem; padding:0.25rem 0.65rem; background:#fff; border:1px solid var(--border); border-radius:2px; font-family:'DM Mono',monospace; font-size:0.76rem; color:var(--muted);">${w}</span>`
+    ).join('');
+
+    btn.addEventListener('click', function() {
+      const open = box.style.display === 'block';
+      box.style.display = open ? 'none' : 'block';
+      btn.textContent = open ? 'View custom stopword list' : 'Hide stopword list';
+    });
+    </script>
+    
     <p>The analysis proceeded on two parallel lines. In R, the corpus was analysed using Latent Dirichlet Allocation (LDA) with Gibbs sampling to identify the dominant thematic structure across all 4,046 speeches. At the same time, the cleaned texts were exported as 21 separate files, one per year, each containing all the speeches delivered in that year, and uploaded together into <strong>Voyant Tools</strong> to track word frequencies, stable terms, and turning points across the full twenty-one year period. The two approaches are complementary:frequency trends visible in Voyant helped contextualise the topic clusters emerging from the LDA model.</p>
 
     <p>For the topic model, the number of topics was determined through an iterative process. An initial model had 20 topics, a number suggested by the size of the corpus and its vocabulary, and produced results where several clusters overlapped without any clear thematic distinction between them or giving further information. Reducing the number to 15 produced a more interpretable map of the corpus, where most topics could be assigned a coherent label based on their top terms and the countries most associated with them, even if two topics still captured a more generic rhetorical register. The final model was run with 1000 iterations and a burn-in period of 200. Topics were interpreted manually by examining the highest-probability terms in each cluster and the countries most consistently associated with each one.</p>
