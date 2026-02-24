@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About - Word Stage</title>
+  <title>About Word Stage</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -133,7 +133,7 @@
   <!-- Introduzione -->
   <div class="about-section" id="intro">
     <h2>Introduction</h2>
-    <p>This project was built by someone approaching computational text methods for the first time. The analysis reflects genuine study and a real effort to understand not just how to run the tools and what their results actually mean. That effort has limits: the knowledge here was built over the course of the project itself, within the limitations of time and equipment. This page also shows where those limitations shaped or affected the work.</p>
+    <p>This project was put together by someone approaching computational text analysis for the first time. The analysis reflects genuine study and a real attempt to understand not just how to run the tools but what the results actually mean. That effort has limits: most of what is here was learned during the project itself, within the constraints of time and equipment. This page also tries to be honest about where those limits show up.</p>
   </div>
 
   <!-- Dataset -->
@@ -147,7 +147,7 @@
       Full text of speeches from 1946 to the present · metadata: country, year, session, speaker name and role
     </div>
 
-    <p>For this project, the corpus was filtered to cover <strong>2003 to 2023</strong>: twenty-one years, 4,046 speeches, 197 countries. The decision to stop at 2023 rather than include 2024 was deliberate: official English translations of the 2024 speeches were not available yet at the time of the analysis (it was written that only an AI English translation was available).</p>
+    <p>For this project, the corpus was filtered to cover <strong>2003 to 2023</strong>: twenty-one years, 4,046 speeches, 197 countries. The decision to stop at 2023 instead of including 2024 was discretional: official English translations of the 2024 speeches were not available yet at the time of the analysis (it was written that only an AI English translation was available).</p>
   </div>
 
   <!-- Metodo -->
@@ -155,9 +155,9 @@
     <h2>Method</h2>
     <p>The study began with the cleaning of the metadata file supplied with the corpus, a spreadsheet with session number, year, country, speaker name, and role for each speech. This was done manually in Excel: column names were standardised, missing or inconsistent values were identified and corrected, and duplicate entries removed.  It was important to have cleaned metadata to link each text file to the correct country and year: in particular, some countries appeared under different names referring to the same place.</p>
 
-    <p>Speeches  are stored as individual <code>.txt</code> files, one per speech, named according to the convention <em>country_session_year.txt</em> and came out in different folders: one per session.  These were loaded into R and joined to the cleaned metadata using country code (iso_code), session number, and year as keys, producing a single structured corpus in which every document carries its full set of metadata. This step transformed 4,046 separate files into a unified dataset ready for analysis.</p>
+    <p>Speeches  are stored as individual .txt files, one per speech, named according to the convention <em>country_session_year.txt</em> and came out in different folders: one per session.  These were loaded into R and joined to the cleaned metadata using country code (iso_code), session number, and year as keys, producing a single structured corpus in which every document carries its full set of metadata. This step transformed 4,046 separate files into a unified dataset ready for analysis.</p>
 
-    <p>The texts then went through a cleaning pipeline: punctuation and numbers were removed, everything was converted to lowercase, and a custom stopword list was applied on top of the standard English stopwords. The custom list targeted diplomatic language that appears in almost every speech regardless of content such as greetings to the Assembly President, references to the host country, standard opening formulas. These words are technically very frequent but probably  carry no meaningful information about content. What remained was lemmatized, meaning each word was reduced to its base form, so that <em>developing</em>, <em>developed</em>, and <em>development</em> would all be counted as the same term.</p>
+    <p>The texts then went through a cleaning pipeline: punctuation and numbers were removed, everything was converted to lowercase, and a custom stopword list was applied on top of the standard English stopwords. The custom list targeted diplomatic language that appears in almost every speech regardless of content such as greetings to the Assembly President, references to the host country, standard opening formulas. These words are technically very frequent but probably carry no meaningful information about content. What remained was lemmatized, meaning each word was reduced to its base form, so that <em>developing</em>, <em>developed</em>, and <em>development</em> all counted as the same term.</p>
 
 <!-- stopwords -->
     <div style="margin: 1.5rem 0;">
@@ -205,9 +205,9 @@
     
     <p>The analysis proceeded on two parallel lines. In R, the corpus was analysed using Latent Dirichlet Allocation (LDA) with Gibbs sampling to identify the dominant thematic structure across all 4,046 speeches. At the same time, the cleaned texts were exported as 21 separate files, one per year, each containing all the speeches delivered in that year, and uploaded together into <strong>Voyant Tools</strong> to track word frequencies, stable terms, and turning points across the full twenty-one year period. The two approaches are complementary:frequency trends visible in Voyant helped contextualise the topic clusters emerging from the LDA model.</p>
 
-    <p>For the topic model, the number of topics was determined through an iterative process. An initial model had 20 topics, a number suggested by the size of the corpus and its vocabulary, and produced results where several clusters overlapped without any clear thematic distinction between them or giving further information. Reducing the number to 15 produced a more interpretable map of the corpus, where most topics could be assigned a coherent label based on their top terms and the countries most associated with them, even if two topics still captured a more generic rhetorical register. The final model was run with 1000 iterations and a burn-in period of 200. Topics were interpreted manually by examining the highest-probability terms in each cluster and the countries most consistently associated with each one.</p>
+    <p>For the topic model, the number of topics came from testing rather than from a fixed rule. An initial model had 20 topics, a number that made sense given the size of the corpus and its vocabulary, and produced results with several clusters overlapped without any  distinction between them. Reducing the number to 15 produced a more interpretable map of the corpus, where most topics could be assigned a coherent label based on their top terms, even if two topics still catch a more generic rhetorical register. The final model was run with 1000 iterations and a burn-in period of 200.</p>
 
-<p>Sentiment analysis was run in R using the Bing lexicon, which assigns fixed positive or negative values to individual words. Lexicon-based methods have known limitations in diplomatic text: a word like <em>peace</em> can signal genuine aspiration or strategic pressure depending on who is speaking, and terms like <em>conflict</em>, <em>war</em>, and <em>sanction</em> are politically central but semantically ambiguous in ways a dictionary cannot resolve. For this reason the sentiment scores are not used as a primary interpretive tool. They appear in the Observations page only once, as a supporting signal for 2022, where the result is anomalous enough to be worth noting despite the method's limitations.</p>
+<p>Sentiment analysis was run in R using the Bing lexicon, which assigns fixed positive or negative values to individual words. Lexicon-based methods have limitations in diplomatic text: a word like <em>peace</em> can signal genuine aspiration or strategic pressure depending on who is speaking, and terms like <em>conflict</em>, <em>war</em>, and <em>sanction</em> are politically central but semantically ambiguous in ways a dictionary cannot resolve. For this reason the sentiment scores are not used as a primary interpretive tool. They appear in the Observations page only once, as a supporting signal for 2022, where the result is different enough to be worth noting despite the method's limitations.</p>
   </div>
 
   <!-- Strumenti -->
@@ -226,11 +226,11 @@
   <div class="about-section" id="limitations">
     <h2>Limitations</h2>
     <p>Some of the choices made in this analysis were discretionary, and it is worth being explicit about them.</p>
-    <p>    The 15 topics were chosen after testing, they were not derived from a formal optimisation criterion. Starting with 20 was not arbitrary: it was based on the size of the corpus and its vocabulary, which could reasonably support that level of granularity. But when the model ran, several topics overlapped too much to be distinguished, so the number was reduced to 15. That produced a cleaner result. Cleaner means  more interpretable to a human reader, not more statistically correct. A different person could have made different decisions at the preprocessing stage and arrived at a different number, and a different map of the same corpus.</p>   
+    <p>    The 15 topics were chosen after testing, not from a formal optimisation criterion. Starting with 20 was not arbitrary: it was based on the size of the corpus and its vocabulary, which could support that level of granularity. But when the model ran, several topics overlapped too much to be distinguished, so the number was reduced to 15. That produced a cleaner result. Cleaner means  more interpretable to a human, not more statistically correct. A different person could have made different decisions at the preprocessing stage and arrived at a different number, and a different map of the same corpus.</p>   
 
     <p>More broadly, topic modeling is a probabilistic method. Two topics in the final model capture a generic register without showing  a clear theme. They seem to be made of general diplomatic language that goes across many countries and years without belonging to any of them in particular. This problem can be addressed to the fact that these are institutional texts where a lot of vocabulary is shared across documents and the algorithm sometimes produces a cluster that catches all instead of a meaningful one. These topics are kept in the analysis.</p>
     
-       <p>Also the structure of the corpus itself can be seen as a limitation: every country delivers one speech per year no matter the size, population, or global influence. This means the topic distribution reflects the formal equality of the UN system not the actual distribution of political power. There must be a structural bias is built into the data, and it must be kept in mind when reading the outputs.</p>
+       <p>Also the structure of the corpus itself can be seen as a limitation: every country delivers one speech per year no matter the size, population, or global influence. This means the topic distribution reflects the formal equality of the UN system not the actual distribution of political power. Moreover, every speech is in English, and that can produce a loss of meanings from the original native lenguage. There can be structural bias in the data, and it must be kept in mind when reading the outputs.</p>
     
 
       <p>Finally, and most importantly: this is an analysis of language, not of politics. What the model shows is how countries talk at the General Assembly but it doesn't necessarily reflect what they do, what they believe, or what effect their words have. Even if the patterns come from the dataset, the interpretation is human.</p>
