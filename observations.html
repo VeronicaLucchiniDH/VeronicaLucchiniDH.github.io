@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Observations — Word Stage</title>
+  <title>Observations  Word Stage</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -188,7 +188,7 @@
 <div class="obs-header">
   <span class="section-label">UN General Debate · 2003-2023</span>
   <h1>Observations</h1>
-  <p>4,046 speeches. 197 countries. 21 years. In this analysis the corpus can be read in three ways: through the words that stay constant across the period, the ones that shift with events, and the map of which countries talk about what.</p>
+  <p>4,046 speeches. 197 countries. 21 years. Three things stand out when you read through all of it: the words that never really change, the ones that do shift with events and the map of which countries talk about what.</p>
 </div>
 
 <!-- Section quick-links -->
@@ -206,9 +206,9 @@
     <h2>Stable Core</h2>
 
     <div class="obs-body">
-      <p>Every September, the United Nations General Assembly opens its annual debate. Heads of state, foreign ministers, and diplomats from member states speak one by one about the state of the world and how their country sees it. Even though there is no mandatory agenda or format, reading these speeches together reveals a coherence and a shared language that is not only the formal diplomatic one, and that persists through two decades changings and events as wars, financial crises, a global pandemic, and the accelerating effects of climate change.</p>
-      <p>This analysis is based on 4,046 speeches delivered between 2003 and 2023, covering 197 countries and over 3.5 million words.</p>
-      <p>The word cloud below is the most intuitive entry point into the corpus. The size of each word is proportional to how often it appears across all 21 years of speeches combined.</p>
+      <p>Every September, the United Nations General Assembly opens its annual debate. Heads of state, foreign ministers, and diplomats from member states: everyone gets his turn to address the room and say how his country sees the world. Even though there is no mandatory agenda or format, reading these speeches together reveals a coherence and a shared language that is not only the formal diplomatic one, and that holds up across two decades of  wars, financial crises, a global pandemic, and the accelerating effects of climate change.</p>
+      <p>This analysis is based on 4,046 speeches from 2003 and 2023,  197 countries and over 3.5 million words.</p>
+      <p>The word cloud below is the most direct way to entry entry into the corpus. The size of each word is proportional to how often it appears across all 21 years of speeches combined.</p>
       <p>Let's take a look</p>
     </div>
 
@@ -242,12 +242,12 @@
     </div>
 
     <div class="obs-body">
-      <p>This stability is confirmed by two different methods. The R analysis processes all 4,046 speeches individually, measuring term frequency at the level of each document and aggregating results across the full corpus. Voyant Tools works on the same already cleaned texts but reads them as a set of 21 annual documents rather than thousands of individual speeches. So there is a difference in aggregation, but they arrive at almost identical top terms. <em>Development</em> is at the top in both: 34.031 occurrences in R, 33.008 in Voyant. The gap (less than 3%) can reflect the different aggregation logic and not a substantive disagreement.</p>
+      <p>This comes out the same ways from two different methods. The R analysis processes all 4,046 speeches individually, and then aggregates across the full corpus. Voyant Tools works on the same already cleaned texts but reads them as 21 annual documents instead of thousands of individual ones. So there is a difference in aggregation, but they arrive at almost identical top terms. <em>Development</em> is at the top in both: 34.031 occurrences in R, 33.008 in Voyant. The gap (less than 3%) can reflect the different aggregation and not a substantive difference</p>
       <p>But why is it so interesting that some words remain still even when the world has changed so much? It is about the timeline. The corpus covers some of the most relevant events of the past twenty years: it starts in the aftermath of September 11 and the invasion of Iraq, then moves through the 2008 global financial crisis, the Arab Spring, the Syrian civil war, the Ukrainian conflict beginning in 2014, the COVID-19 pandemic, and the Russian invasion of Ukraine in 2022. Any one of these events might seem enough to reorganize the most used words, and yet the core vocabulary stays the same.</p>
       <p>Even in 2003, with the Security Council split over Iraq and the entire multilateral system under strain, <em>development</em> was still the most frequent word in the General Debate. In 2009, with the global financial system in crisis, <em>development</em> and <em>peace</em> held their positions. In 2020, when <em>pandemic</em> and <em>covid</em> exploded into the corpus from almost zero, they did not take the place of the core terms. But they actually added to the vocabulary without replacing anything.</p>
-      <p>Probably, this is not accidental. It reflects something structural about how the General Debate works. Every country, regardless of its size, its political system, or its specific agenda, operates within a shared diplomatic register. Whether this is because countries genuinely need this language to be taken seriously, or because it has become standard practice, or because the General Debate is not really the arena where the most direct conversations happen. The stable core is less a description of what countries care about and more a description of the language they must use to care about anything at the UN.</p>
-      <p>The term co-occurrence network produced by the R analysis adds a further layer. <em>Development</em>, <em>peace</em>, <em>rights</em>, <em>human</em>, <em>climate</em>, and <em>sustainable</em> form a dense central cluster, with hundreds of other terms radiating from them. It shows that these words are not just frequent: they are structurally central. They are the hubs through which almost all diplomatic discourse passes, which is not a coincidence.</p>
-      <p>The vocabulary density of the corpus, measured by Voyant at 0.010, puts a number on this concentration. Out of 36,035 unique word forms across 3.5 million words, the top five terms cover a disproportionate share of the text, suggesting not just institutional habit, but something closer to a shared diplomatic code.</p>
+      <p>Probably, this is not accidental. It may reflect something structural about how the General Debate works. Every country, no matter its size, political system, or specific agenda, ends up operating in the same diplomatic register. Whether that's because countries genuinely need this language to be taken seriously, or because it's become a convention, or because the General Debate isn't really the place where the most direct conversations happen, it's hard to say. The stable core is less a description of what countries care about and more a description of the language they must use to care about anything at the UN.</p>
+      <p>The term co-occurrence network produced by the R analysis adds something else. <em>Development</em>, <em>peace</em>, <em>rights</em>, <em>human</em>, <em>climate</em>, and <em>sustainable</em> form a dense central cluster, with hundreds of other terms connecting from them. It shows that these words are not just frequent, they are structurally central. Almost all diplomatic discourse in the corpus passes through them, which probably isn't a coincidence.</p>
+      <p>The vocabulary density of the corpus, measured by Voyant at 0.010, shows a numberon this concentration. Out of 36,035 unique word forms across 3.5 million words, the top five terms cover a disproportionate share of the text, may be not just an institutional habit, but something like a shared diplomatic code.</p>
     </div>
   </section>
 
@@ -257,7 +257,7 @@
     <h2>Changing Over Time</h2>
 
     <div class="obs-body">
-      <p>Beneath the stable surface, the corpus shifts. Some words rise, others fall, and a few appear suddenly where before there was nothing. The chart below tracks a different set of terms, chosen not for their overall frequency but for what their trajectories reveal about how global events enter, or do not enter, the language of multilateral diplomacy.</p>
+      <p>But under that stable surface, the corpus does move. Some words rise, some fall, a few appear almost from nowhere. The chart below follows a different set of terms, chosen not for their frequency but for what their trajectories shows about how global events enter, or not, into the language of the General Debate.</p>
     </div>
 
     <!-- Variable trends -->
@@ -273,19 +273,19 @@
     </div>
 
     <div class="obs-body">
-      <p>This trend chart shows how different words move across the 21 years. Some of these movements are easy to explain while others can be more surprising.Reading these movements together, four distinct periods stand out, and they align with the major institutional turning points through which the UN itself has marked its recent history.</p>
+      <p>This trend chart shows how different words move across the 21 years. Some of these movements are easy to explain,  others can be more surprising.Reading these movements together, four periods stand out, and come into focus that roughly match the major turning points in the UN's own recent history.</p>
 
-      <p>The word <em>terrorism</em> peaks sharply in 2003-2005 and then begins a long decline. September 11 happened in 2001; the invasions of Afghanistan and Iraq followed. The language of the General Debate absorbed these events even as the core words stayed fixed. These were also the years of the Millennium Development Goals, adopted in 2000 and in full implementation during this period: <em>goals</em>, <em>poverty</em>, <em>aid</em>, <em>millennium</em> all carry weight in the corpus here. The General Debate in these years was pulled between the longterm development agenda the UN had spent years building and a security emergency that arrived suddenly and would not leave.</p>
+      <p>The word <em>terrorism</em> peaks sharply in 2003-2005 and then begins a long decline. September 11 happened in 2001, the invasions of Afghanistan and Iraq followed. The language of the General Debate absorbed these events even as the core words stayed the same. These were also the years of the Millennium Development Goals, adopted in 2000 and in full implementation during this period: <em>goals</em>, <em>poverty</em>, <em>aid</em>, <em>millennium</em> all carry weight in the corpus here. The General Debate in these years was pulled between the longterm development agenda the UN had spent years building and a security emergency that arrived suddenly and would not leave.</p>
 
-      <p>By 2008 terrorism had already begun to fade, and a different word takes its place: economic. The financial crisis enters the corpus the same year it hits the global economy, and <em>crisis</em>, <em>financial</em>, and <em>recovery</em> follow. What is interesting is not just that these words appear in those years, but that the core vocabulary stays the same. These are also the years when the international community began talking about what would eventually become the 2030 Agenda. The corpus in this period has a transitional quality: old frameworks winding down, new ones not yet arrived. <em>Conflict</em> stays present through all of it: the Syrian civil war, the early Ukraine crisis, but without a spike. It accumulates rather than erupts.</p>
+      <p>By 2008 terrorism had already begun to fade, and a different word takes its place: economic. The financial crisis enters the corpus the same year it hits the global economy, and <em>crisis</em>, <em>financial</em>, and <em>recovery</em> follow. What is interesting is not just that these words appear in those years, but that the core vocabulary stays the same. These are also the years when the international community began talking about what would eventually become the 2030 Agenda. The corpus in this period has a transitional role: old frameworks winding down, new ones not yet arrived. <em>Conflict</em> stays present through all of it: the Syrian civil war, the early Ukraine crisis, but without a spike. It accumulates, doesn't erupts.</p>
 
-      <p>There is a clear turning point in 2015, when <em>sustainable</em> and <em>climate</em> both begin rising and do not come back down (even if there's been little rising before). September 2015 was when the UN General Assembly adopted the 17 Sustainable Development Goals; three months later came the Paris Agreement. The speed with which this vocabulary spread across 197 countries is one of the clearest signals in the corpus. It suggests that when the UN adopts a framework, the language follows almost immediately, across very different governments.</p>
+      <p>There is a clear turning point in 2015, when <em>sustainable</em> and <em>climate</em> both begin rising and do not come back down (even if there's been little rising before). September 2015 was when the UN General Assembly adopted the 17 Sustainable Development Goals, then came the Paris Agreement. The speed with which this vocabulary spread across 197 countries suggests that when the UN adopts a framework, the language follows almost immediately, across very different governments.</p>
 
-      <p><em>Pandemic</em> and <em>covid</em> are effectively invisible in the chart until 2020, then spike higher than almost anything else in the dataset. A new vocabulary arrived fully formed in a single year, the sharpest disruption the corpus shows. But the most significant signal in this final period is not the COVID spike. It is what the sentiment analysis shows for 2022: the lowest average score of any year in the entire dataset, lower even than 2003. The result is striking enough to mention even if lexicon-based sentiment analysis has known limitations in diplomatic text, where words like <em>conflict</em> or <em>war</em> carry very different weight depending on context. No other year in these  twentyone years of speeches produced anything comparable. The most plausible reading is that the Russian invasion of Ukraine, the first time in the post-Cold War period that a permanent member of the Security Council launched a full-scale war against a UN member state, which reorganized the emotional register of the General Debate in a way that earlier crises had not. Wars, financial crises, geopolitical shifts, all left traces in the corpus, but 2022 stands apart.</p>
+      <p><em>Pandemic</em> and <em>covid</em> are effectively invisible in the chart until 2020, then spike higher than almost anything else in the dataset. A new vocabulary arrived fully formed in a single year, the sharpest disruption the corpus shows. But the most significant signal in this final period is not the COVID spike. It is what the sentiment analysis shows for 2022: the lowest average score of any year in the entire dataset, lower even than 2003 (or 2008). The result is striking enough to mention even if lexicon-based sentiment analysis has known limitations in diplomatic text, where words like <em>conflict</em> or <em>war</em> carry very different weight depending on context. No other year in these  twentyone years of speeches produced anything comparable. The most plausible reading is that the Russian invasion of Ukraine, the first time in the post-Cold War period that a permanent member of the Security Council launched a fullscale war against a UN member state, which reorganized the emotional register of the General Debate in a way that earlier crises had not. Wars, financial crises, geopolitical shifts, all left traces in the corpus, but 2022 stands apart.</p>
     </div>
 <!-- Sentiment evolution -->
       <div class="obs-body">
-        <p>A note on method: the chart below comes from a lexicon-based sentiment analysis run in R using the Bing dictionary, which assigns fixed positive or negative values to individual words regardless of context. In diplomatic text this is a rough measure — a word like <em>conflict</em> or <em>war</em> can appear in very different registers depending on who is speaking and why. The scores should be read as a general signal, not as a precise measure of emotional tone.</p>
+        <p>A note on method: the chart below comes from a lexicon-based sentiment analysis run in R using the Bing dictionary, which assigns fixed positive or negative values to individual words regardless of context. In diplomatic text this is a rough measure: a word like <em>conflict</em> or <em>war</em> can appear in very different registers depending on who is speaking and why. The scores should be read as a general signal, not as a precise measure of emotional tone.</p>
         <p>With that caveat, the 2022 result is unusual enough to be worth showing. The chart tracks the average normalised sentiment score per year from 2003 to 2023, with the shaded band representing the standard deviation across speeches in each year.</p>
       </div>
 
@@ -310,8 +310,8 @@
     <h2>Topics and Geography</h2>
 
     <div class="obs-body">
-      <p>The first two sections describe what the corpus says and how it changes over time. This section is about who says what, and why geography offers a useful and different  perspective from which  read the speeches.</p>
-      <p>Geography matters here not as a background variable but as a lens. Looking at which countries cluster around which topics can show differences that frequency analysis alone cannot show: who was talking about certain problems before they became shared priorities. It can happen that some trends that  emerge late  were already consistent and persistent in the speeches of a small group of countries long before they became mainstream concerns.</p>
+      <p>The first two sections looked at what the corpus says and how it moves over time. This one is about who says what, and geography turns out to be a useful point of view</p>
+      <p>Geography matters here not as a background variable but as a lens. Looking at which countries cluster around which topics can show differences that frequency analysis alone can't show: who was talking about certain problems before they became shared priorities. It can happen that some trends that emerge late  were already consistent and persistent in the speeches of a small group of countries long before they became mainstream concerns.</p>
       <p>The LDA topic model identified 15 latent themes across the corpus. Each country's speeches were assigned a dominant topic based on the probability distribution across all 21 years. </p>
     </div>
 
@@ -385,7 +385,7 @@
     </div>
     <p class="map-note">Dominant topic assigned by the model across the full 2003–2023 period</p>
     <div class="obs-body">
-      <p>Most countries connect to multiple topics without strong concentration in any one. A smaller number show a dominant attachment to a single theme, and these can be considered the most analytically revealing cases, pointing to situations where a country's position in the world has anticipated or has had intuition about what for the General Debate becomes, year after year, an issue.</p>
+      <p>Most countries connect to multiple topics without strong concentration in any one. A smaller number shows a different behaviour: a concentration on a single theme. Those can be interesting cases, as they kept talking about something way before it became everyone's concern.</p>
 
       <p>Northeast Asia: North and South Korea, Japan, and China together account for the majority of speeches on the Nuclear Disarmament topic: a Northeast Asian security conversation proposed annually on the UN floor, largely absent from the speeches of other regions.</p>
 
@@ -395,7 +395,7 @@
 
       <p>Central Asia.Turkmenistan, Uzbekistan, Kazakhstan, Kyrgyzstan, and Tajikistan form a bloc around regional cooperation, framing their speeches in a shared post-Soviet register that is linguistically distinct from every other part of the corpus.</p>
 
-      <p>Two topics in the model, Generic Rhetoric A and Generic Rhetoric B, need a note . Their top countries include France, Germany, the United States, and the United Kingdom: states with some of the greatest economy and influence within the UN system. That the most powerful actors in the room produce the least thematically defined language is not necessarily incoherent. It may instead means that generality itself is positioning. It can't be said if this reflects genuine breadth of concern, diplomatic convention, or simply the fact that for most countries the General Debate is one of the few occasions to address the full range of issues at once. </p>
+      <p>Two topics in the model, Generic Rhetoric A and Generic Rhetoric B, need a note . Their top countries include France, Germany, the United States, and the United Kingdom: states with some of the greatest economy and influence within the UN system. The fact that the most influential states produce the least thematically defined language isn't necessarily incoherent. It might mean that generality is itself a kind of positioning. It can't be said if this reflects genuine breadth of concern, diplomatic convention, or simply the fact that for most countries the General Debate is one of the few occasions to address everything at once. </p>
 
       <p>Most countries, however, do not follow  any of these patterns. The majority engage across those generic topics that work for most countries: development, human rights, security, and climate without concentrating in any single area.</p>
     </div>
