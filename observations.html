@@ -315,6 +315,61 @@
       <p>The LDA topic model identified 15 latent themes across the corpus. Each country's speeches were assigned a dominant topic based on the probability distribution across all 21 years. </p>
     </div>
 
+    <!-- Menu a tendina topic keywords -->
+    <div style="margin: 2rem 0;">
+      <label for="topic-select" style="font-family:'DM Mono',monospace; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:0.6rem;">Explore topic keywords</label>
+      <select id="topic-select" style="font-family:'DM Sans',sans-serif; font-size:0.9rem; padding:0.6rem 1rem; border:1px solid var(--border); border-radius:3px; background:var(--card-bg); color:var(--ink); cursor:pointer; width:100%; max-width:420px;">
+        <option value="">— Select a topic —</option>
+        <option value="1">T01 · Nuclear Disarmament</option>
+        <option value="2">T02 · Peace &amp; Community</option>
+        <option value="3">T03 · Small Islands &amp; Climate</option>
+        <option value="4">T04 · Generic Rhetoric A</option>
+        <option value="5">T05 · COVID &amp; Climate Action</option>
+        <option value="6">T06 · Human Rights &amp; Law</option>
+        <option value="7">T07 · Human Rights &amp; Democracy</option>
+        <option value="8">T08 · Terrorism &amp; War</option>
+        <option value="9">T09 · Generic Rhetoric B</option>
+        <option value="10">T10 · Development &amp; Reform</option>
+        <option value="11">T11 · Palestine &amp; Arab World</option>
+        <option value="12">T12 · Social Development</option>
+        <option value="13">T13 · Regional Cooperation</option>
+        <option value="14">T14 · SDGs &amp; Agenda 2030</option>
+        <option value="15">T15 · Economic Crisis</option>
+      </select>
+
+      <div id="topic-keywords" style="margin-top:1rem; min-height:2.5rem;"></div>
+    </div>
+
+    <script>
+    const topicKeywords = {
+      1:  ["peace","weapon","nuclear","community","effort","treaty","democratic","issue","cooperation","disarmament"],
+      2:  ["peace","community","union","support","election","political","situation","take","conflict"],
+      3:  ["island","climate","small","change","develop","pacific","continue","ocean","support","address"],
+      4:  ["can","see","many","want","now","know","come","even","say","let"],
+      5:  ["climate","change","challenge","pandemic","action","covid","crisis","health","future","sustainable"],
+      6:  ["right","human","conflict","law","woman","humanitarian","responsibility","rule","work","support"],
+      7:  ["human","right","respect","social","democracy","political","order","justice","peace","principle"],
+      8:  ["war","force","terrorist","terrorism","military","right","attack","territory","law","group"],
+      9:  ["work","can","peace","good","future","build","together","democracy","stand","challenge"],
+      10: ["reform","development","terrorism","millennium","challenge","summit","continue","effort","action","develop"],
+      11: ["peace","effort","palestinian","region","achieve","resolution","support","solution","political","arab"],
+      12: ["education","woman","national","child","health","public","programme","social","work","sector"],
+      13: ["cooperation","region","regional","issue","important","problem","strengthen","process","economic","believe"],
+      14: ["development","sustainable","goal","national","achieve","implementation","challenge","effort","support"],
+      15: ["economic","develop","development","financial","crisis","food","trade","economy","resource","increase"]
+    };
+
+    document.getElementById('topic-select').addEventListener('change', function() {
+      const val = this.value;
+      const box = document.getElementById('topic-keywords');
+      if (!val) { box.innerHTML = ''; return; }
+      const words = topicKeywords[val];
+      box.innerHTML = words.map(w =>
+        `<span style="display:inline-block; margin:0.3rem 0.25rem; padding:0.3rem 0.75rem; background:var(--card-bg); border:1px solid var(--border); border-radius:2px; font-family:'DM Mono',monospace; font-size:0.78rem; color:var(--ink);">${w}</span>`
+      ).join('');
+    });
+    </script>
+
     <!--  Mappa -->
     <div id="map-container">
       <div class="map-controls">
